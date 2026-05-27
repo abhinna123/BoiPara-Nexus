@@ -163,13 +163,13 @@ const BookFinderPage = () => {
 
         {/* Header Title */}
         <div style={styles.header}>
-          <h1 style={styles.heading}>Smart Book Finder</h1>
+          <h1 className="finder-heading" style={styles.heading}>Smart Book Finder</h1>
           <p style={styles.subheading}>Scan through heritage stalls and locate academic or rare editions instantly</p>
         </div>
 
         {/* Search & Filter Bar */}
-        <div className="premium-card wobbly-border" style={styles.searchBarCard}>
-          <form onSubmit={handleSearchSubmit} style={styles.searchForm}>
+        <div className="premium-card wobbly-border finder-search-card" style={styles.searchBarCard}>
+          <form onSubmit={handleSearchSubmit} className="finder-search-form" style={styles.searchForm}>
             <Search color="#5C4033" size={22} style={{ opacity: 0.6 }} />
             <input 
               type="text" 
@@ -183,7 +183,7 @@ const BookFinderPage = () => {
                 Clear
               </button>
             )}
-            <button type="submit" style={styles.searchBtn}>
+            <button type="submit" className="finder-search-btn" style={styles.searchBtn}>
               Find Book
             </button>
           </form>
@@ -197,6 +197,7 @@ const BookFinderPage = () => {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
+                className="category-pill"
                 style={{
                   ...styles.categoryPill,
                   backgroundColor: isSelected ? 'var(--color-primary)' : '#FFFDF9',
@@ -220,6 +221,7 @@ const BookFinderPage = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
+                className="finder-grid"
                 style={styles.gridContainer}
               >
                 {[1, 2, 3, 4].map(id => <SkeletonCard key={id} />)}
@@ -236,6 +238,7 @@ const BookFinderPage = () => {
                     transition: { staggerChildren: 0.08 }
                   }
                 }}
+                className="finder-grid"
                 style={styles.gridContainer}
               >
                 {filteredBooks.map(book => (

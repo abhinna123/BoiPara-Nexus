@@ -113,7 +113,23 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {loading ? (
+        <div style={{ 
+          height: '100vh', 
+          width: '100vw', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          background: 'var(--color-bg-paper)',
+          color: 'var(--color-primary)',
+          fontFamily: 'var(--font-heading)'
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '10px' }}>BoiPara Nexus</h2>
+            <p style={{ opacity: 0.6 }}>Loading heritage data...</p>
+          </div>
+        </div>
+      ) : children}
     </AuthContext.Provider>
   );
 };

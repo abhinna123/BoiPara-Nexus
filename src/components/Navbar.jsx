@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { BookOpen, User as UserIcon, LogOut } from 'lucide-react';
+import { BookOpen, User as UserIcon, LogOut, Menu, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import LoginModal from './LoginModal';
 
@@ -9,6 +10,7 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navLinks = [
     { name: 'Home', path: '/' },
@@ -18,15 +20,19 @@ const Navbar = () => {
     { name: 'Heritage Stories', path: '/stories' },
   ];
 
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
   return (
     <>
       <nav style={styles.nav}>
         <div className="container" style={styles.container}>
           <Link to="/" style={styles.logo}>
             <BookOpen size={28} color="var(--color-primary)" />
-            <span style={styles.logoText}>BoiPara Nexus</span>
+            <span className="logo-text" style={styles.logoText}>BoiPara Nexus</span>
           </Link>
-          <div style={styles.links}>
+
+          {/* Desktop Links */}
+          <div className="nav-desktop-links" style={styles.links}>
             {navLinks.map((link) => (
               <Link 
                 key={link.path} 
@@ -42,46 +48,95 @@ const Navbar = () => {
             ))}
           </div>
 
-          <div style={styles.authWrapper}>
-            {user ? (
-              <div style={styles.profileContainer}>
-                <button 
-                  onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  style={styles.profileButton}
-                  className="hover-lift"
-                >
-                  {user.photoURL ? (
-                    <img src={user.photoURL} alt="Profile" style={styles.avatar} />
-                  ) : (
-                    <div style={styles.avatarPlaceholder}>
-                      <UserIcon size={20} color="var(--color-primary)" />
+          <div style={styles.rightSection}>
+            <div style={styles.authWrapper}>
+              {user ? (
+                <div style={styles.profileContainer}>
+                  <button 
+                    onClick={() => setIsProfileOpen(!isProfileOpen)}
+                    style={styles.profileButton}
+                    className="hover-lift"
+                  >
+                    {user.photoURL ? (
+                      <img src={user.photoURL} alt="Profile" style={styles.avatar} />
+                    ) : (
+                      <div style={styles.avatarPlaceholder}>
+                        <UserIcon size={20} color="var(--color-primary)" />
+                      </div>
+                    )}
+                  </button>
+
+                  {isProfileOpen && (
+                    <div className="premium-card wobbly-border" style={styles.dropdown}>
+                      <div style={styles.dropdownHeader}>
+                        <p style={styles.userName}>{user.displayName || 'Researcher'}</p>
+                        <p style={styles.userEmail}>{user.email}</p>
+                      </div>
+                      <button onClick={logout} className="nav-logout-btn">
+                        <LogOut size={16} /> Logout
+                      </button>
                     </div>
                   )}
+                </div>
+              ) : (
+                <button 
+                  className="premium-card hover-lift" 
+                  style={styles.button}
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  Sign In
                 </button>
+              )}
+            </div>
 
-                {isProfileOpen && (
-                  <div className="premium-card wobbly-border" style={styles.dropdown}>
-                    <div style={styles.dropdownHeader}>
-                      <p style={styles.userName}>{user.displayName || 'Researcher'}</p>
-                      <p style={styles.userEmail}>{user.email}</p>
-                    </div>
-                    <button onClick={logout} style={styles.logoutBtn}>
-                      <LogOut size={16} /> Logout
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <button 
-                className="premium-card hover-lift" 
-                style={styles.button}
-                onClick={() => setIsModalOpen(true)}
-              >
-                Sign In
-              </button>
-            )}
+            {/* Mobile Menu Toggle */}
+            <button className="nav-menu-toggle" style={styles.menuToggle} onClick={toggleMenu}>
+              {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Menu Overlay */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="nav-mobile-menu" 
+              style={styles.mobileMenu}
+            >
+              <div style={styles.mobileLinks}>
+                {navLinks.map((link) => (
+                  <Link 
+                    key={link.path} 
+                    to={link.path} 
+                    onClick={() => setIsMenuOpen(false)}
+                    style={{
+                      ...styles.mobileLink, 
+                      color: location.pathname === link.path ? 'var(--color-primary)' : 'var(--color-text-ink)',
+                      fontWeight: location.pathname === link.path ? '600' : '400'
+                    }}
+                  >
+                    {link.name}
+                  </Link>
+                ))}
+                {!user && (
+                  <button 
+                    className="premium-card" 
+                    style={{...styles.button, marginTop: '10px', width: '100%', textAlign: 'center'}}
+                    onClick={() => {
+                      setIsModalOpen(true);
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    Sign In
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
 
       <LoginModal 
@@ -127,6 +182,11 @@ const styles = {
     fontSize: '15px',
     transition: 'color 0.2s',
   },
+  rightSection: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '16px',
+  },
   authWrapper: {
     position: 'relative',
   },
@@ -139,6 +199,34 @@ const styles = {
     borderRadius: 'var(--radius-pill)',
     background: '#fff',
     cursor: 'pointer',
+  },
+  menuToggle: {
+    display: 'none',
+    color: 'var(--color-text-ink)',
+    background: 'none',
+    border: 'none',
+    padding: '4px',
+    cursor: 'pointer',
+  },
+  mobileMenu: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    background: 'var(--color-bg-paper)',
+    padding: '24px',
+    borderBottom: '1px solid rgba(44, 36, 27, 0.1)',
+    boxShadow: '0 10px 20px rgba(0,0,0,0.05)',
+    zIndex: 90,
+  },
+  mobileLinks: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '20px',
+  },
+  mobileLink: {
+    fontSize: '18px',
+    fontFamily: 'var(--font-heading)',
   },
   profileContainer: {
     position: 'relative',
@@ -205,9 +293,6 @@ const styles = {
     fontSize: '0.9rem',
     fontWeight: '600',
     transition: 'background 0.2s',
-    '&:hover': {
-      background: 'rgba(140, 58, 58, 0.05)',
-    }
   }
 };
 

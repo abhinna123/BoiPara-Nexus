@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, ArrowRight, BookOpen, Stethoscope, PenTool, Feather } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { booksData } from '../data/booksData';
 
 const miniNodes = [
   { id: 'engineering', title: 'Engineering', top: '25%', left: '25%', color: '#3A7CA5', icon: BookOpen, keywords: ['engineering', 'java', 'physics', 'algorithm', 'science', 'math'] },
@@ -12,27 +13,41 @@ const miniNodes = [
 
 const LandingPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
   const [highlightedNode, setHighlightedNode] = useState(null);
   const [hoveredNode, setHoveredNode] = useState(null);
+  const [isFocused, setIsFocused] = useState(false);
   const navigate = useNavigate();
 
-  // Detect which node to highlight based on search query
+  // Detect which node to highlight based on search query and filter books
   useEffect(() => {
     if (searchQuery.trim().length > 1) {
       const query = searchQuery.toLowerCase();
+      
+      // Node highlighting logic
       const match = miniNodes.find(node => 
         node.title.toLowerCase().includes(query) || 
         node.keywords.some(k => query.includes(k))
       );
       setHighlightedNode(match ? match.id : null);
+
+      // Book filtering logic
+      const filtered = booksData.filter(book => 
+        book.title.toLowerCase().includes(query) ||
+        book.author.toLowerCase().includes(query) ||
+        book.category.toLowerCase().includes(query)
+      ).slice(0, 5);
+      setSearchResults(filtered);
     } else {
       setHighlightedNode(null);
+      setSearchResults([]);
     }
   }, [searchQuery]);
 
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      navigate(`/finder?q=${encodeURIComponent(searchQuery.trim())}`);
+  const handleSearch = (term) => {
+    const finalTerm = term || searchQuery;
+    if (finalTerm.trim()) {
+      navigate(`/finder?q=${encodeURIComponent(finalTerm.trim())}`);
     } else {
       navigate('/finder');
     }
@@ -48,46 +63,96 @@ const LandingPage = () => {
       <img src="/tram.png" alt="Kolkata Tram" style={styles.bgTram} />
 
       {/* Absolute Floating Cards */}
-      <div className="premium-card animate-float-slow hover-lift" style={{ ...styles.floatingCard, top: '20%', left: '8%', animationDelay: '0s' }}>
+      <div className="premium-card animate-float-slow hover-lift floating-card" style={{ ...styles.floatingCard, top: '20%', left: '8%', animationDelay: '0s' }}>
         <h4 style={styles.floatingCardTitle}>DSA in Java</h4>
       </div>
-      <div className="premium-card animate-float-slow hover-lift" style={{ ...styles.floatingCard, top: '28%', right: '10%', animationDelay: '2s' }}>
+      <div className="premium-card animate-float-slow hover-lift floating-card" style={{ ...styles.floatingCard, top: '28%', right: '10%', animationDelay: '2s' }}>
         <h4 style={styles.floatingCardTitle}>HC Verma Physics</h4>
       </div>
-      <div className="premium-card animate-float-slow hover-lift" style={{ ...styles.floatingCard, bottom: '35%', left: '12%', animationDelay: '1s' }}>
+      <div className="premium-card animate-float-slow hover-lift floating-card" style={{ ...styles.floatingCard, bottom: '35%', left: '12%', animationDelay: '1s' }}>
         <h4 style={styles.floatingCardTitle}>Tagore Omnibus</h4>
       </div>
-      <div className="premium-card animate-float-slow hover-lift" style={{ ...styles.floatingCard, bottom: '45%', right: '8%', animationDelay: '3s' }}>
+      <div className="premium-card animate-float-slow hover-lift floating-card" style={{ ...styles.floatingCard, bottom: '45%', right: '8%', animationDelay: '3s' }}>
         <h4 style={styles.floatingCardTitle}>UPSC Polity</h4>
       </div>
       
-      <div className="container" style={styles.heroSection}>
-        <div style={styles.badgesContainer}>
+      <div className="container hero-section" style={styles.heroSection}>
+        <div className="badges-container" style={styles.badgesContainer}>
           <span className="badge animate-fade-in" style={{animationDelay: '0.2s'}}>📚 10,000+ Books</span>
           <span className="badge animate-fade-in" style={{animationDelay: '0.4s'}}>🏛️ 500+ Legacy Stalls</span>
           <span className="badge animate-fade-in" style={{animationDelay: '0.6s'}}>👨‍🎓 Student Exchange</span>
         </div>
 
-        <h1 style={styles.title}>BoiPara Nexus</h1>
-        <p style={styles.subtitle}>Discover the academic heritage of College Street</p>
+        <h1 className="hero-title" style={styles.title}>BoiPara Nexus</h1>
+        <p className="hero-subtitle" style={styles.subtitle}>Discover the academic heritage of College Street</p>
         
-        <div className="premium-card search-bar-glow hover-lift" style={styles.searchContainer}>
+        <div className="premium-card search-bar-glow hover-lift search-container" style={styles.searchContainer}>
           <Search color="var(--color-text-ink)" size={24} style={{ opacity: 0.5 }} />
           <input 
             type="text" 
             placeholder="Search for academic books, rare finds, or authors..." 
+            className="search-input"
             style={styles.searchInput}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setTimeout(() => setIsFocused(false), 200)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 handleSearch();
               }
             }}
           />
-          <button style={styles.searchButton} onClick={handleSearch}>
+          <button className="search-button" style={styles.searchButton} onClick={() => handleSearch()}>
             Search <ArrowRight size={18} />
           </button>
+
+          {/* Dynamic Search Results Dropdown */}
+          <AnimatePresence>
+            {isFocused && searchQuery.trim().length > 1 && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+                style={styles.resultsDropdown}
+                className="premium-card wobbly-border"
+              >
+                {searchResults.length > 0 ? (
+                  <>
+                    <div style={styles.dropdownHeader}>Suggested Books</div>
+                    {searchResults.map((book) => (
+                      <div 
+                        key={book.id} 
+                        style={styles.resultItem}
+                        onClick={() => handleSearch(book.title)}
+                      >
+                        <div style={styles.resultIcon}>
+                          <BookOpen size={16} color={book.coverColor} />
+                        </div>
+                        <div style={styles.resultDetails}>
+                          <span style={styles.resultTitle}>{book.title}</span>
+                          <span style={styles.resultMeta}>{book.author} • {book.category}</span>
+                        </div>
+                        <ArrowRight size={14} className="result-arrow" style={{ opacity: 0.3 }} />
+                      </div>
+                    ))}
+                    <div 
+                      style={styles.dropdownFooter}
+                      onClick={() => handleSearch()}
+                    >
+                      See all results for "{searchQuery}"
+                    </div>
+                  </>
+                ) : (
+                  <div style={styles.noResults}>
+                    <p style={styles.noResultsText}>No heritage books found for "{searchQuery}"</p>
+                    <p style={styles.noResultsSub}>Try searching for 'Tagore', 'Physics', or 'Algorithms'</p>
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Hero Interactive Mini-Map */}
@@ -95,14 +160,14 @@ const LandingPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.8 }}
-          className="premium-card wobbly-border" 
+          className="premium-card wobbly-border mini-map-card" 
           style={styles.miniMapCard}
         >
           <div style={styles.miniMapHeader}>
             <span style={styles.miniMapLabel}>Interactive Heritage Zones</span>
           </div>
           
-          <div style={styles.miniMapContent}>
+          <div className="mini-map-content" style={styles.miniMapContent}>
             {/* Connecting Lines SVG */}
             <svg width="100%" height="100%" style={styles.miniMapLines}>
               <motion.path 
@@ -167,10 +232,10 @@ const LandingPage = () => {
                   onMouseEnter={() => setHoveredNode(node.id)}
                   onMouseLeave={() => setHoveredNode(null)}
                   onClick={() => handleNodeClick(node.id)}
-                  className={highlightedNode === node.id ? 'animate-glow' : ''}
+                  className={`mini-node ${highlightedNode === node.id ? 'animate-glow' : ''}`}
                 >
                   <Icon size={16} />
-                  <span style={styles.miniNodeTitle}>{node.title}</span>
+                  <span className="mini-node-title" style={styles.miniNodeTitle}>{node.title}</span>
                   
                   <AnimatePresence>
                     {isActive && (
@@ -278,6 +343,8 @@ const styles = {
     gap: '16px',
     border: '1px solid rgba(44, 36, 27, 0.08)',
     marginBottom: '60px',
+    position: 'relative',
+    overflow: 'visible', // Essential for dropdown visibility
   },
   searchInput: {
     flex: 1,
@@ -298,6 +365,88 @@ const styles = {
     alignItems: 'center',
     gap: '8px',
     transition: 'background 0.2s',
+  },
+  resultsDropdown: {
+    position: 'absolute',
+    top: 'calc(100% + 12px)',
+    left: 0,
+    right: 0,
+    background: '#FFFDF9',
+    border: '2px solid #5C4033',
+    boxShadow: '0 15px 35px rgba(92, 64, 51, 0.15), 4px 6px 0px rgba(92, 64, 51, 0.2)',
+    zIndex: 100,
+    textAlign: 'left',
+    padding: '8px 0',
+  },
+  dropdownHeader: {
+    padding: '8px 20px',
+    fontSize: '0.75rem',
+    fontWeight: '700',
+    color: 'var(--color-primary)',
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
+    opacity: 0.6,
+    borderBottom: '1px dashed rgba(92, 64, 51, 0.1)',
+    marginBottom: '4px',
+  },
+  resultItem: {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '12px 20px',
+    gap: '14px',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+  },
+  resultIcon: {
+    width: '32px',
+    height: '32px',
+    borderRadius: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(92, 64, 51, 0.05)',
+  },
+  resultDetails: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  resultTitle: {
+    fontSize: '1rem',
+    fontWeight: '600',
+    color: 'var(--color-text-ink)',
+  },
+  resultMeta: {
+    fontSize: '0.8rem',
+    color: 'var(--color-text-ink)',
+    opacity: 0.6,
+  },
+  dropdownFooter: {
+    padding: '12px 20px',
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    color: 'var(--color-primary)',
+    textAlign: 'center',
+    borderTop: '1px dashed rgba(92, 64, 51, 0.1)',
+    marginTop: '4px',
+    cursor: 'pointer',
+    transition: 'background 0.2s',
+  },
+  noResults: {
+    padding: '24px 20px',
+    textAlign: 'center',
+  },
+  noResultsText: {
+    fontSize: '1rem',
+    fontWeight: '600',
+    color: 'var(--color-text-ink)',
+    margin: 0,
+  },
+  noResultsSub: {
+    fontSize: '0.85rem',
+    color: 'var(--color-text-ink)',
+    opacity: 0.6,
+    marginTop: '4px',
   },
   miniMapCard: {
     width: '100%',

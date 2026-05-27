@@ -150,7 +150,7 @@ const AddaPage = () => {
           <div style={styles.badgeWrapper}>
             <span className="badge">🤝 Peer-to-Peer</span>
           </div>
-          <h1 style={styles.title}>Student Adda</h1>
+          <h1 className="adda-title" style={styles.title}>Student Adda</h1>
           <p style={styles.subtitle}>Exchange, sell, or find academic books directly from fellow students.</p>
         </motion.div>
 
@@ -159,13 +159,13 @@ const AddaPage = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="premium-card" 
+          className="premium-card adda-form-card" 
           style={styles.formCard}
         >
           <h2 style={styles.formTitle}>{editingId ? 'Edit Listing' : 'List a Book'}</h2>
           <form onSubmit={handleSubmit} style={styles.form}>
-            <div style={styles.inputGroup}>
-              <div className="search-bar-glow" style={styles.inputWrapper}>
+            <div className="adda-input-group" style={styles.inputGroup}>
+              <div className="search-bar-glow adda-input-wrapper" style={styles.inputWrapper}>
                 <BookOpen size={18} style={styles.inputIcon} />
                 <input
                   type="text"
@@ -177,7 +177,7 @@ const AddaPage = () => {
                   required
                 />
               </div>
-              <div className="search-bar-glow" style={styles.inputWrapper}>
+              <div className="search-bar-glow adda-input-wrapper" style={styles.inputWrapper}>
                 <User size={18} style={styles.inputIcon} />
                 <input
                   type="text"
@@ -190,8 +190,8 @@ const AddaPage = () => {
                 />
               </div>
             </div>
-            <div style={styles.inputGroup}>
-              <div className="search-bar-glow" style={styles.inputWrapper}>
+            <div className="adda-input-group" style={styles.inputGroup}>
+              <div className="search-bar-glow adda-input-wrapper" style={styles.inputWrapper}>
                 <Tag size={18} style={styles.inputIcon} />
                 <input
                   type="text"
@@ -203,7 +203,7 @@ const AddaPage = () => {
                   required
                 />
               </div>
-              <div className="search-bar-glow" style={styles.inputWrapper}>
+              <div className="search-bar-glow adda-input-wrapper" style={styles.inputWrapper}>
                 <Phone size={18} style={styles.inputIcon} />
                 <input
                   type="text"
@@ -218,8 +218,8 @@ const AddaPage = () => {
             </div>
             
             {/* Image Upload Field */}
-            <div style={styles.uploadGroup}>
-              <label htmlFor="book-image-upload" className="search-bar-glow" style={styles.uploadLabel}>
+            <div className="adda-input-group" style={styles.uploadGroup}>
+              <label htmlFor="book-image-upload" className="search-bar-glow adda-input-wrapper" style={styles.uploadLabel}>
                 <Camera size={20} style={styles.inputIcon} />
                 <span>{formData.image ? 'Image Selected' : 'Upload Book Photo (Optional)'}</span>
                 <input
@@ -238,7 +238,7 @@ const AddaPage = () => {
             </div>
 
             <div style={styles.formActions}>
-              <button type="submit" className="hover-lift" style={styles.submitButton}>
+              <button type="submit" className="hover-lift adda-submit-btn" style={styles.submitButton}>
                 {editingId ? 'Update Listing' : 'Post to Adda'} {editingId ? <Edit2 size={18} /> : <Send size={18} />}
               </button>
               {editingId && (
@@ -253,7 +253,7 @@ const AddaPage = () => {
         {/* Book List Section */}
         <div style={styles.listSection}>
           <h2 style={styles.listTitle}>Recent Listings</h2>
-          <motion.div layout style={styles.grid}>
+          <motion.div layout className="adda-grid" style={styles.grid}>
             <AnimatePresence mode="popLayout">
               {books.map((book) => {
                 const isOwner = book.isUserAdded && (book.userId === user?.uid || (book.userId === 'anonymous' && !user));

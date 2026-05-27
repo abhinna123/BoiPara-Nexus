@@ -51,7 +51,7 @@ const LoginModal = ({ isOpen, onClose }) => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="premium-card wobbly-border"
+            className="premium-card wobbly-border modal-content"
             style={styles.modalContent}
             onClick={(e) => e.stopPropagation()}
           >
@@ -61,7 +61,7 @@ const LoginModal = ({ isOpen, onClose }) => {
 
             <div style={styles.content}>
               <div style={styles.header}>
-                <h2 style={styles.title}>{isSignUp ? 'Create Account' : 'Welcome Back'}</h2>
+                <h2 className="modal-title" style={styles.title}>{isSignUp ? 'Create Account' : 'Welcome Back'}</h2>
                 <p style={styles.subtitle}>
                   {isSignUp 
                     ? 'Join the BoiPara community to preserve academic heritage.' 

@@ -1,0 +1,230 @@
+/* Responsive overrides for BoiPara Nexus */
+
+/* General mobile improvements */
+@media (max-width: 768px) {
+  .container {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}
+
+/* Navbar */
+@media (max-width: 900px) {
+  .nav-desktop-links {
+    display: none !important;
+  }
+  .nav-menu-toggle {
+    display: block !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .logo-text {
+    font-size: 18px !important;
+  }
+}
+
+/* Landing Page */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 60px 16px 40px !important;
+  }
+  .hero-title {
+    font-size: 2.8rem !important;
+    line-height: 1.1 !important;
+    margin-bottom: 12px !important;
+  }
+  .hero-subtitle {
+    font-size: 1.1rem !important;
+    margin-bottom: 32px !important;
+  }
+  .badges-container {
+    gap: 8px !important;
+    margin-bottom: 24px !important;
+  }
+  .badge {
+    font-size: 0.75rem !important;
+    padding: 6px 10px !important;
+  }
+  .search-container {
+    flex-direction: column !important;
+    padding: 12px !important;
+    gap: 12px !important;
+    border-radius: 20px !important;
+    margin: 0 16px 40px !important;
+    width: calc(100% - 32px) !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+  .search-input {
+    width: 100% !important;
+    font-size: 1rem !important;
+    text-align: center !important;
+  }
+  .search-button {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 14px !important;
+  }
+  .floating-card {
+    display: none !important; /* Hide floating cards on small screens to reduce clutter */
+  }
+  .mini-map-card {
+    padding: 16px !important;
+    margin: 0 16px !important;
+    width: calc(100% - 32px) !important;
+  }
+  .mini-map-content {
+    height: 180px !important;
+  }
+  .mini-node {
+    padding: 4px 8px !important;
+    gap: 4px !important;
+  }
+  .mini-node-title {
+    font-size: 0.7rem !important;
+  }
+  .mini-node svg {
+    width: 12px !important;
+    height: 12px !important;
+  }
+}
+
+/* Zone Map */
+@media (max-width: 1024px) {
+  .map-container {
+    height: 500px !important;
+    border-radius: 24px !important;
+  }
+  .map-heading {
+    font-size: 2.2rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .side-panel {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: 85vh !important;
+    transform: translateY(110%) !important;
+    visibility: hidden !important;
+    z-index: 1000 !important;
+    background: #FFFDF9 !important;
+    border-top: 3px solid #5C4033 !important;
+    border-left: none !important;
+    border-radius: 40px 40px 0 0 !important;
+    padding: 16px 24px 40px !important;
+    box-shadow: 0 -15px 45px rgba(44, 36, 27, 0.25) !important;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .side-panel.open {
+    transform: translateY(0) !important;
+    visibility: visible !important;
+  }
+
+  .mobile-drag-handle {
+    display: block !important;
+  }
+
+  .side-panel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(44, 36, 27, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+    display: block; /* Removed !important to allow React conditional rendering */
+  }
+
+  .map-heading {
+    font-size: 1.8rem !important;
+  }
+  .zone-node {
+    min-width: 140px !important;
+    padding: 8px 12px !important;
+  }
+  .zone-node span {
+    font-size: 0.9rem !important;
+  }
+  .zone-node div:first-child {
+    width: 28px !important;
+    height: 28px !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .side-panel-overlay, .mobile-drag-handle {
+    display: none !important;
+  }
+}
+
+/* Book Finder */
+@media (max-width: 768px) {
+  .finder-heading {
+    font-size: 2.2rem !important;
+  }
+  .finder-search-card {
+    border-radius: 20px !important;
+    padding: 12px !important;
+  }
+  .finder-search-form {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  .finder-search-btn {
+    width: 100% !important;
+  }
+  .finder-grid {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+  .category-pill {
+    padding: 8px 16px !important;
+    font-size: 0.85rem !important;
+  }
+}
+
+/* Student Adda */
+@media (max-width: 768px) {
+  .adda-title {
+    font-size: 2.5rem !important;
+  }
+  .adda-form-card {
+    padding: 20px !important;
+  }
+  .adda-input-group {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  .adda-input-wrapper {
+    min-width: 100% !important;
+  }
+  .adda-submit-btn {
+    width: 100% !important;
+  }
+  .adda-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Modals */
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 32px 20px !important;
+    width: 95% !important;
+    max-height: 95vh !important;
+  }
+  .modal-title {
+    font-size: 1.6rem !important;
+  }
+}

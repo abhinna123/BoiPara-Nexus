@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { X, Book, MapPin, Tag, BookOpen, Feather, Stethoscope, PenTool } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { zonesData } from '../data/zonesData';
 
 // Helper to render customized hand-drawn heritage icons for nodes
@@ -85,143 +85,163 @@ const ZoneMapSection = () => {
     <section style={styles.section}>
       <div className="container" style={styles.container}>
         <div style={styles.header}>
-          <h2 style={styles.heading}>Interactive Zone Map</h2>
+          <h2 className="map-heading" style={styles.heading}>Interactive Zone Map</h2>
           <p style={styles.subheading}>Explore the knowledge network of College Street</p>
         </div>
 
-        <div style={styles.mapContainer}>
-          {/* Main Map Content with Zoom & Pan Animation */}
-          <motion.div
-            animate={{ 
-              scale: transform.scale,
-              x: transform.x,
-              y: transform.y,
-            }}
-            transition={{ 
-              duration: 1, 
-              ease: [0.22, 1, 0.36, 1] 
-            }}
-            style={styles.mapContent}
-          >
-            {/* Subtle Decorative Elements */}
-            {/* Compass Rose */}
-            <div className="compass-rose" style={{ position: 'absolute', top: '5%', right: '5%', opacity: 0.85, pointerEvents: 'none', zIndex: 6 }}>
-              <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                <circle cx="40" cy="40" r="34" stroke="#5C4033" strokeWidth="1.5" strokeDasharray="3,2" />
-                <circle cx="40" cy="40" r="31" stroke="#5C4033" strokeWidth="1.2" />
-                <path d="M 40 40 L 40 12 L 44 40 Z" fill="#8C3A3A" stroke="#5C4033" strokeWidth="1" />
-                <path d="M 40 40 L 40 12 L 36 40 Z" fill="#FFFDF9" stroke="#5C4033" strokeWidth="1" />
-                <path d="M 40 40 L 40 68 L 36 40 Z" fill="#8C3A3A" stroke="#5C4033" strokeWidth="1" />
-                <path d="M 40 40 L 40 68 L 44 40 Z" fill="#FFFDF9" stroke="#5C4033" strokeWidth="1" />
-                <path d="M 40 40 L 68 40 L 40 44 Z" fill="#8C3A3A" stroke="#5C4033" strokeWidth="1" />
-                <path d="M 40 40 L 68 40 L 40 36 Z" fill="#FFFDF9" stroke="#5C4033" strokeWidth="1" />
-                <path d="M 40 40 L 12 40 L 40 36 Z" fill="#8C3A3A" stroke="#5C4033" strokeWidth="1" />
-                <path d="M 40 40 L 12 40 L 40 44 Z" fill="#FFFDF9" stroke="#5C4033" strokeWidth="1" />
-                <text x="36.5" y="9.5" fill="#5C4033" fontSize="10" fontWeight="bold" fontFamily="var(--font-heading)">N</text>
-                <circle cx="40" cy="40" r="3.5" fill="#5C4033" />
+        <div className="zone-map-wrapper" style={styles.wrapper}>
+          <div className="map-container" style={styles.mapContainer}>
+            {/* Main Map Content with Zoom & Pan Animation */}
+            <motion.div
+              animate={{ 
+                scale: transform.scale,
+                x: transform.x,
+                y: transform.y,
+              }}
+              transition={{ 
+                duration: 1, 
+                ease: [0.22, 1, 0.36, 1] 
+              }}
+              style={styles.mapContent}
+            >
+              {/* Subtle Decorative Elements */}
+              {/* Compass Rose */}
+              <div className="compass-rose" style={{ position: 'absolute', top: '5%', right: '5%', opacity: 0.85, pointerEvents: 'none', zIndex: 6 }}>
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                  <circle cx="40" cy="40" r="34" stroke="#5C4033" strokeWidth="1.5" strokeDasharray="3,2" />
+                  <circle cx="40" cy="40" r="31" stroke="#5C4033" strokeWidth="1.2" />
+                  <path d="M 40 40 L 40 12 L 44 40 Z" fill="#8C3A3A" stroke="#5C4033" strokeWidth="1" />
+                  <path d="M 40 40 L 40 12 L 36 40 Z" fill="#FFFDF9" stroke="#5C4033" strokeWidth="1" />
+                  <path d="M 40 40 L 40 68 L 36 40 Z" fill="#8C3A3A" stroke="#5C4033" strokeWidth="1" />
+                  <path d="M 40 40 L 40 68 L 44 40 Z" fill="#FFFDF9" stroke="#5C4033" strokeWidth="1" />
+                  <path d="M 40 40 L 68 40 L 40 44 Z" fill="#8C3A3A" stroke="#5C4033" strokeWidth="1" />
+                  <path d="M 40 40 L 68 40 L 40 36 Z" fill="#FFFDF9" stroke="#5C4033" strokeWidth="1" />
+                  <path d="M 40 40 L 12 40 L 40 36 Z" fill="#8C3A3A" stroke="#5C4033" strokeWidth="1" />
+                  <path d="M 40 40 L 12 40 L 40 44 Z" fill="#FFFDF9" stroke="#5C4033" strokeWidth="1" />
+                  <text x="36.5" y="9.5" fill="#5C4033" fontSize="10" fontWeight="bold" fontFamily="var(--font-heading)">N</text>
+                  <circle cx="40" cy="40" r="3.5" fill="#5C4033" />
+                </svg>
+              </div>
+
+              {/* Steaming Clay Tea Cup */}
+              <div style={{ position: 'absolute', bottom: '26%', left: '12%', opacity: 0.9, zIndex: 6, transform: 'rotate(5deg)' }}>
+                <svg width="40" height="50" viewBox="0 0 40 50" fill="none">
+                  <path className="steam-line" d="M16 14 Q 13 8, 16 3" stroke="#8C6D4F" strokeWidth="1.5" strokeLinecap="round" />
+                  <path className="steam-line" d="M21 16 Q 25 10, 21 4" stroke="#8C6D4F" strokeWidth="1.5" strokeLinecap="round" />
+                  <path className="steam-line" d="M26 14 Q 23 8, 25 3" stroke="#8C6D4F" strokeWidth="1.5" strokeLinecap="round" />
+                  <path d="M 11 20 C 11 20, 9 37, 13 43 C 16 47, 24 47, 27 43 C 31 37, 29 20, 29 20 Z" fill="#D4A373" stroke="#5C4033" strokeWidth="1.8" strokeLinejoin="round" />
+                  <ellipse cx="20" cy="20" rx="9" ry="2.5" fill="#C7925E" stroke="#5C4033" strokeWidth="1.8" />
+                </svg>
+              </div>
+
+              {/* SVG Knowledge Network Lines & Tram Tracks */}
+              <svg viewBox="0 0 100 100" style={styles.svgNetwork} preserveAspectRatio="none">
+                <g opacity={selectedZone ? 0.2 : 0.35}>
+                  <path d="M -10 40 C 25 42, 45 58, 110 52" stroke="#7A5A45" strokeWidth="5" strokeDasharray="1.5,7" fill="none" vectorEffect="non-scaling-stroke" />
+                  <path d="M -10 39.2 C 25 41.2, 45 57.2, 110 51.2" stroke="#5A5A5A" strokeWidth="0.8" fill="none" vectorEffect="non-scaling-stroke" />
+                  <path d="M -10 40.8 C 25 42.8, 45 58.8, 110 52.8" stroke="#5A5A5A" strokeWidth="0.8" fill="none" vectorEffect="non-scaling-stroke" />
+                </g>
+
+                <g opacity={selectedZone ? 0.4 : 1}>
+                  {/* Roads */}
+                  <path d="M 20 15 Q 45 10 75 35" stroke="#422B1E" strokeWidth="4.2" fill="none" vectorEffect="non-scaling-stroke" />
+                  <path d="M 20 15 Q 45 10 75 35" stroke="#FFFDF9" strokeWidth="2.5" fill="none" vectorEffect="non-scaling-stroke" />
+                  <path d="M 20 15 Q 45 10 75 35" stroke="#8C3A3A" strokeWidth="0.6" strokeDasharray="1.5,1.5" fill="none" vectorEffect="non-scaling-stroke" />
+
+                  <path d="M 20 15 C 10 40 30 60 25 70" stroke="#422B1E" strokeWidth="4.2" fill="none" vectorEffect="non-scaling-stroke" />
+                  <path d="M 20 15 C 10 40 30 60 25 70" stroke="#FFFDF9" strokeWidth="2.5" fill="none" vectorEffect="non-scaling-stroke" />
+                  <path d="M 20 15 C 10 40 30 60 25 70" stroke="#8C3A3A" strokeWidth="0.6" strokeDasharray="1.5,1.5" fill="none" vectorEffect="non-scaling-stroke" />
+
+                  <path d="M 75 35 Q 80 60 65 80" stroke="#422B1E" strokeWidth="4.2" fill="none" vectorEffect="non-scaling-stroke" />
+                  <path d="M 75 35 Q 80 60 65 80" stroke="#FFFDF9" strokeWidth="2.5" fill="none" vectorEffect="non-scaling-stroke" />
+                  <path d="M 75 35 Q 80 60 65 80" stroke="#8C3A3A" strokeWidth="0.6" strokeDasharray="1.5,1.5" fill="none" vectorEffect="non-scaling-stroke" />
+
+                  <path d="M 25 70 Q 45 90 65 80" stroke="#422B1E" strokeWidth="4.2" fill="none" vectorEffect="non-scaling-stroke" />
+                  <path d="M 25 70 Q 45 90 65 80" stroke="#FFFDF9" strokeWidth="2.5" fill="none" vectorEffect="non-scaling-stroke" />
+                  <path d="M 25 70 Q 45 90 65 80" stroke="#8C3A3A" strokeWidth="0.6" strokeDasharray="1.5,1.5" fill="none" vectorEffect="non-scaling-stroke" />
+
+                  <path d="M 75 35 C 50 50 60 60 25 70" stroke="#422B1E" strokeWidth="4.2" fill="none" vectorEffect="non-scaling-stroke" />
+                  <path d="M 75 35 C 50 50 60 60 25 70" stroke="#FFFDF9" strokeWidth="2.5" fill="none" vectorEffect="non-scaling-stroke" />
+                  <path d="M 75 35 C 50 50 60 60 25 70" stroke="#8C3A3A" strokeWidth="0.6" strokeDasharray="1.5,1.5" fill="none" vectorEffect="non-scaling-stroke" />
+                </g>
               </svg>
-            </div>
 
-            {/* Steaming Clay Tea Cup */}
-            <div style={{ position: 'absolute', bottom: '26%', left: '12%', opacity: 0.9, zIndex: 6, transform: 'rotate(5deg)' }}>
-              <svg width="40" height="50" viewBox="0 0 40 50" fill="none">
-                <path className="steam-line" d="M16 14 Q 13 8, 16 3" stroke="#8C6D4F" strokeWidth="1.5" strokeLinecap="round" />
-                <path className="steam-line" d="M21 16 Q 25 10, 21 4" stroke="#8C6D4F" strokeWidth="1.5" strokeLinecap="round" />
-                <path className="steam-line" d="M26 14 Q 23 8, 25 3" stroke="#8C6D4F" strokeWidth="1.5" strokeLinecap="round" />
-                <path d="M 11 20 C 11 20, 9 37, 13 43 C 16 47, 24 47, 27 43 C 31 37, 29 20, 29 20 Z" fill="#D4A373" stroke="#5C4033" strokeWidth="1.8" strokeLinejoin="round" />
-                <ellipse cx="20" cy="20" rx="9" ry="2.5" fill="#C7925E" stroke="#5C4033" strokeWidth="1.8" />
-              </svg>
-            </div>
+              {/* Zone Nodes */}
+              {zonesData.map((zone, index) => {
+                const isSelected = selectedZone?.id === zone.id;
+                const isDimmed = selectedZone && !isSelected;
+                const isHighlighted = isSelected && highlightedStall;
+                
+                return (
+                  <div 
+                    key={zone.id}
+                    className={`premium-card zone-node animate-fade-node wobbly-border ${isHighlighted ? 'animate-glow' : ''} ${isSelected ? 'pulse-focus' : ''}`}
+                    style={{
+                      ...styles.node,
+                      top: zone.position.top,
+                      left: zone.position.left,
+                      backgroundColor: '#FFFDF9',
+                      border: isSelected ? `3px solid ${zone.color}` : '2px solid #5C4033',
+                      boxShadow: isSelected 
+                        ? `0 0 40px ${zone.shadow}, 5px 8px 0px rgba(92, 64, 51, 0.2)` 
+                        : '4px 6px 0px rgba(92, 64, 51, 0.2)',
+                      transform: isSelected 
+                        ? 'translate(-50%, calc(-50% - 10px)) scale(1.1) rotate(1deg)' 
+                        : 'translate(-50%, -50%)',
+                      zIndex: isSelected ? 15 : 10,
+                      opacity: isDimmed ? 0.5 : 1,
+                      transition: 'all 0.8s cubic-bezier(0.22, 1, 0.36, 1)',
+                      animationDelay: `${index * 0.15}s`
+                    }}
+                    onClick={() => {
+                      setSelectedZone(zone);
+                      setHighlightedStall(null);
+                    }}
+                  >
+                    {getZoneMarkerIcon(zone.id, zone.color)}
+                    <span style={styles.nodeTitle}>{zone.title}</span>
 
-            {/* SVG Knowledge Network Lines & Tram Tracks */}
-            <svg viewBox="0 0 100 100" style={styles.svgNetwork} preserveAspectRatio="none">
-              <g opacity={selectedZone ? 0.2 : 0.35}>
-                <path d="M -10 40 C 25 42, 45 58, 110 52" stroke="#7A5A45" strokeWidth="5" strokeDasharray="1.5,7" fill="none" vectorEffect="non-scaling-stroke" />
-                <path d="M -10 39.2 C 25 41.2, 45 57.2, 110 51.2" stroke="#5A5A5A" strokeWidth="0.8" fill="none" vectorEffect="non-scaling-stroke" />
-                <path d="M -10 40.8 C 25 42.8, 45 58.8, 110 52.8" stroke="#5A5A5A" strokeWidth="0.8" fill="none" vectorEffect="non-scaling-stroke" />
-              </g>
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '-8px',
+                      left: '50%',
+                      transform: 'translateX(-50%) rotate(45deg)',
+                      width: '14px',
+                      height: '14px',
+                      backgroundColor: '#FFFDF9',
+                      borderRight: isSelected ? `3px solid ${zone.color}` : '2px solid #5C4033',
+                      borderBottom: isSelected ? `3px solid ${zone.color}` : '2px solid #5C4033',
+                      zIndex: -1,
+                      transition: 'border-color 0.8s'
+                    }}></div>
+                  </div>
+                );
+              })}
+            </motion.div>
+          </div>
 
-              <g opacity={selectedZone ? 0.4 : 1}>
-                {/* Roads */}
-                <path d="M 20 15 Q 45 10 75 35" stroke="#422B1E" strokeWidth="4.2" fill="none" vectorEffect="non-scaling-stroke" />
-                <path d="M 20 15 Q 45 10 75 35" stroke="#FFFDF9" strokeWidth="2.5" fill="none" vectorEffect="non-scaling-stroke" />
-                <path d="M 20 15 Q 45 10 75 35" stroke="#8C3A3A" strokeWidth="0.6" strokeDasharray="1.5,1.5" fill="none" vectorEffect="non-scaling-stroke" />
+          {/* Mobile Overlay */}
+          <AnimatePresence>
+            {selectedZone && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => {
+                  setSelectedZone(null);
+                  setHighlightedStall(null);
+                }}
+                className="side-panel-overlay"
+                style={styles.overlay}
+              />
+            )}
+          </AnimatePresence>
 
-                <path d="M 20 15 C 10 40 30 60 25 70" stroke="#422B1E" strokeWidth="4.2" fill="none" vectorEffect="non-scaling-stroke" />
-                <path d="M 20 15 C 10 40 30 60 25 70" stroke="#FFFDF9" strokeWidth="2.5" fill="none" vectorEffect="non-scaling-stroke" />
-                <path d="M 20 15 C 10 40 30 60 25 70" stroke="#8C3A3A" strokeWidth="0.6" strokeDasharray="1.5,1.5" fill="none" vectorEffect="non-scaling-stroke" />
-
-                <path d="M 75 35 Q 80 60 65 80" stroke="#422B1E" strokeWidth="4.2" fill="none" vectorEffect="non-scaling-stroke" />
-                <path d="M 75 35 Q 80 60 65 80" stroke="#FFFDF9" strokeWidth="2.5" fill="none" vectorEffect="non-scaling-stroke" />
-                <path d="M 75 35 Q 80 60 65 80" stroke="#8C3A3A" strokeWidth="0.6" strokeDasharray="1.5,1.5" fill="none" vectorEffect="non-scaling-stroke" />
-
-                <path d="M 25 70 Q 45 90 65 80" stroke="#422B1E" strokeWidth="4.2" fill="none" vectorEffect="non-scaling-stroke" />
-                <path d="M 25 70 Q 45 90 65 80" stroke="#FFFDF9" strokeWidth="2.5" fill="none" vectorEffect="non-scaling-stroke" />
-                <path d="M 25 70 Q 45 90 65 80" stroke="#8C3A3A" strokeWidth="0.6" strokeDasharray="1.5,1.5" fill="none" vectorEffect="non-scaling-stroke" />
-
-                <path d="M 75 35 C 50 50 60 60 25 70" stroke="#422B1E" strokeWidth="4.2" fill="none" vectorEffect="non-scaling-stroke" />
-                <path d="M 75 35 C 50 50 60 60 25 70" stroke="#FFFDF9" strokeWidth="2.5" fill="none" vectorEffect="non-scaling-stroke" />
-                <path d="M 75 35 C 50 50 60 60 25 70" stroke="#8C3A3A" strokeWidth="0.6" strokeDasharray="1.5,1.5" fill="none" vectorEffect="non-scaling-stroke" />
-              </g>
-            </svg>
-
-            {/* Zone Nodes */}
-            {zonesData.map((zone, index) => {
-              const isSelected = selectedZone?.id === zone.id;
-              const isDimmed = selectedZone && !isSelected;
-              const isHighlighted = isSelected && highlightedStall;
-              
-              return (
-                <div 
-                  key={zone.id}
-                  className={`premium-card zone-node animate-fade-node wobbly-border ${isHighlighted ? 'animate-glow' : ''} ${isSelected ? 'pulse-focus' : ''}`}
-                  style={{
-                    ...styles.node,
-                    top: zone.position.top,
-                    left: zone.position.left,
-                    backgroundColor: '#FFFDF9',
-                    border: isSelected ? `3px solid ${zone.color}` : '2px solid #5C4033',
-                    boxShadow: isSelected 
-                      ? `0 0 40px ${zone.shadow}, 5px 8px 0px rgba(92, 64, 51, 0.2)` 
-                      : '4px 6px 0px rgba(92, 64, 51, 0.2)',
-                    transform: isSelected 
-                      ? 'translate(-50%, calc(-50% - 10px)) scale(1.1) rotate(1deg)' 
-                      : 'translate(-50%, -50%)',
-                    zIndex: isSelected ? 15 : 10,
-                    opacity: isDimmed ? 0.5 : 1,
-                    transition: 'all 0.8s cubic-bezier(0.22, 1, 0.36, 1)',
-                    animationDelay: `${index * 0.15}s`
-                  }}
-                  onClick={() => {
-                    setSelectedZone(zone);
-                    setHighlightedStall(null);
-                  }}
-                >
-                  {getZoneMarkerIcon(zone.id, zone.color)}
-                  <span style={styles.nodeTitle}>{zone.title}</span>
-
-                  <div style={{
-                    position: 'absolute',
-                    bottom: '-8px',
-                    left: '50%',
-                    transform: 'translateX(-50%) rotate(45deg)',
-                    width: '14px',
-                    height: '14px',
-                    backgroundColor: '#FFFDF9',
-                    borderRight: isSelected ? `3px solid ${zone.color}` : '2px solid #5C4033',
-                    borderBottom: isSelected ? `3px solid ${zone.color}` : '2px solid #5C4033',
-                    zIndex: -1,
-                    transition: 'border-color 0.8s'
-                  }}></div>
-                </div>
-              );
-            })}
-          </motion.div>
-
-          {/* Side Panel */}
+          {/* Side Panel moved outside map-container for mobile layout freedom */}
           <div className={`side-panel ${selectedZone ? 'open' : ''}`}>
             {selectedZone && (
               <>
+                <div className="mobile-drag-handle" style={styles.dragHandle}></div>
                 <div style={{...styles.panelHeader, borderBottom: `2px solid ${selectedZone.color}`}}>
                   <div style={styles.panelTitleGroup}>
                     <div style={{...styles.nodeDot, backgroundColor: selectedZone.color}}></div>
@@ -331,6 +351,28 @@ const styles = {
     width: '100%',
     height: '100%',
     transformOrigin: '0 0',
+  },
+  wrapper: {
+    position: 'relative',
+    width: '100%',
+  },
+  overlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(44, 36, 27, 0.4)',
+    backdropFilter: 'blur(4px)',
+    zIndex: 999,
+  },
+  dragHandle: {
+    width: '40px',
+    height: '5px',
+    backgroundColor: 'rgba(92, 64, 51, 0.15)',
+    borderRadius: '10px',
+    margin: '0 auto 24px auto',
+    display: 'none',
   },
   svgNetwork: {
     position: 'absolute',
