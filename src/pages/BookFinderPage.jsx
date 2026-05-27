@@ -153,7 +153,7 @@ const BookFinderPage = () => {
   });
 
   return (
-    <div style={styles.pageWrapper}>
+    <div className="finder-wrapper" style={styles.pageWrapper}>
       <div className="container" style={styles.container}>
         
         {/* Back Link */}

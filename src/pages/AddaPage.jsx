@@ -136,7 +136,7 @@ const AddaPage = () => {
   };
 
   return (
-    <div style={styles.wrapper}>
+    <div className="adda-wrapper" style={styles.wrapper}>
       {/* Background Decoration */}
       <img src="/tram.png" alt="Kolkata Tram" style={styles.bgTram} />
 

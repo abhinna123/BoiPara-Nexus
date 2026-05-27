@@ -58,7 +58,7 @@ const LandingPage = () => {
   };
 
   return (
-    <div style={styles.wrapper}>
+    <div className="landing-wrapper" style={styles.wrapper}>
       {/* Background Illustrations with opacity */}
       <img src="/tram.png" alt="Kolkata Tram" style={styles.bgTram} />
 

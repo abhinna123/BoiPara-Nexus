@@ -218,6 +218,8 @@ const styles = {
     borderBottom: '1px solid rgba(44, 36, 27, 0.1)',
     boxShadow: '0 10px 20px rgba(0,0,0,0.05)',
     zIndex: 90,
+    maxHeight: 'calc(100dvh - 80px)',
+    overflowY: 'auto',
   },
   mobileLinks: {
     display: 'flex',

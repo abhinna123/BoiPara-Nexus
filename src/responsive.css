@@ -27,7 +27,7 @@
 /* Landing Page */
 @media (max-width: 768px) {
   .hero-section {
-    padding: 60px 16px 40px !important;
+    padding: 80px 16px 40px !important;
   }
   .hero-title {
     font-size: 2.8rem !important;
@@ -48,16 +48,18 @@
   }
   .search-container {
     flex-direction: column !important;
-    padding: 12px !important;
+    padding: 16px !important;
     gap: 12px !important;
     border-radius: 20px !important;
     margin: 0 16px 40px !important;
     width: calc(100% - 32px) !important;
     left: 0 !important;
     right: 0 !important;
+    height: auto !important;
   }
   .search-input {
     width: 100% !important;
+    height: 48px !important;
     font-size: 1rem !important;
     text-align: center !important;
   }
@@ -65,6 +67,7 @@
     width: 100% !important;
     justify-content: center !important;
     padding: 14px !important;
+    height: 48px !important;
   }
   .floating-card {
     display: none !important; /* Hide floating cards on small screens to reduce clutter */
@@ -110,7 +113,7 @@
     right: 0 !important;
     width: 100% !important;
     height: auto !important;
-    max-height: 85vh !important;
+    max-height: 85dvh !important;
     transform: translateY(110%) !important;
     visibility: hidden !important;
     z-index: 1000 !important;
@@ -118,7 +121,7 @@
     border-top: 3px solid #5C4033 !important;
     border-left: none !important;
     border-radius: 40px 40px 0 0 !important;
-    padding: 16px 24px 40px !important;
+    padding: 16px 24px calc(40px + env(safe-area-inset-bottom)) !important;
     box-shadow: 0 -15px 45px rgba(44, 36, 27, 0.25) !important;
     transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s !important;
     overflow-y: auto !important;
@@ -175,14 +178,20 @@
   }
   .finder-search-card {
     border-radius: 20px !important;
-    padding: 12px !important;
+    padding: 16px !important;
   }
   .finder-search-form {
     flex-direction: column !important;
     gap: 12px !important;
   }
+  .finder-search-form input {
+    width: 100% !important;
+    height: 48px !important;
+    text-align: center !important;
+  }
   .finder-search-btn {
     width: 100% !important;
+    height: 48px !important;
   }
   .finder-grid {
     grid-template-columns: 1fr !important;
@@ -191,6 +200,14 @@
   .category-pill {
     padding: 8px 16px !important;
     font-size: 0.85rem !important;
+  }
+}
+
+/* Page Wrappers */
+@media (max-width: 768px) {
+  .landing-wrapper, .adda-wrapper, .finder-wrapper, .stories-wrapper {
+    padding-top: 10px !important;
+    min-height: 100dvh !important;
   }
 }
 
@@ -208,6 +225,7 @@
   }
   .adda-input-wrapper {
     min-width: 100% !important;
+    margin-bottom: 8px !important;
   }
   .adda-submit-btn {
     width: 100% !important;
@@ -222,7 +240,7 @@
   .modal-content {
     padding: 32px 20px !important;
     width: 95% !important;
-    max-height: 95vh !important;
+    max-height: 90dvh !important;
   }
   .modal-title {
     font-size: 1.6rem !important;

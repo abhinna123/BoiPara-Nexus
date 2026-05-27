@@ -1,6 +1,7 @@
 .stories-wrapper {
   background: var(--color-bg-paper);
   min-height: 100vh;
+  min-height: 100dvh;
   padding-bottom: 80px;
 }
 
@@ -179,6 +180,7 @@
   width: 100%;
   max-width: 900px;
   max-height: 90vh;
+  max-height: 90dvh;
   background: #fff;
   z-index: 1001;
   display: flex;
@@ -291,6 +293,7 @@
   }
   .story-modal {
     max-height: 100vh;
+    max-height: 100dvh;
     height: 100%;
     border-radius: 0;
   }
