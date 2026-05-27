@@ -25,8 +25,13 @@ const Navbar = () => {
   return (
     <>
       <nav style={styles.nav}>
-        <div className="container" style={styles.container}>
-          <Link to="/" style={styles.logo}>
+        <div className="container nav-container" style={styles.container}>
+          {/* Mobile Menu Toggle - Now on the left */}
+          <button className="nav-menu-toggle" style={styles.menuToggle} onClick={toggleMenu}>
+            {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+
+          <Link to="/" style={styles.logo} className="nav-logo">
             <BookOpen size={28} color="var(--color-primary)" />
             <span className="logo-text" style={styles.logoText}>BoiPara Nexus</span>
           </Link>
@@ -48,7 +53,7 @@ const Navbar = () => {
             ))}
           </div>
 
-          <div style={styles.rightSection}>
+          <div style={styles.rightSection} className="nav-right-section">
             <div style={styles.authWrapper}>
               {user ? (
                 <div style={styles.profileContainer}>
@@ -88,11 +93,6 @@ const Navbar = () => {
                 </button>
               )}
             </div>
-
-            {/* Mobile Menu Toggle */}
-            <button className="nav-menu-toggle" style={styles.menuToggle} onClick={toggleMenu}>
-              {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
-            </button>
           </div>
         </div>
 
