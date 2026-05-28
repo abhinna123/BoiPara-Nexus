@@ -85,7 +85,7 @@ const Navbar = () => {
                 </div>
               ) : (
                 <button 
-                  className="premium-card hover-lift" 
+                  className="premium-card hover-lift sign-in-btn" 
                   style={styles.button}
                   onClick={() => setIsModalOpen(true)}
                 >
@@ -96,45 +96,68 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Menu Overlay */}
+        {/* Mobile Menu Sidebar Drawer */}
         <AnimatePresence>
           {isMenuOpen && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="nav-mobile-menu" 
-              style={styles.mobileMenu}
-            >
-              <div style={styles.mobileLinks}>
-                {navLinks.map((link) => (
-                  <Link 
-                    key={link.path} 
-                    to={link.path} 
-                    onClick={() => setIsMenuOpen(false)}
-                    style={{
-                      ...styles.mobileLink, 
-                      color: location.pathname === link.path ? 'var(--color-primary)' : 'var(--color-text-ink)',
-                      fontWeight: location.pathname === link.path ? '600' : '400'
-                    }}
-                  >
-                    {link.name}
+            <>
+              {/* Dark Transparent Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsMenuOpen(false)}
+                style={styles.menuBackdrop}
+              />
+              
+              {/* Sidebar Drawer */}
+              <motion.div 
+                initial={{ x: '-100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '-100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="nav-mobile-menu" 
+                style={styles.mobileMenu}
+              >
+                <div style={styles.mobileMenuHeader}>
+                  <Link to="/" style={styles.logo} onClick={() => setIsMenuOpen(false)}>
+                    <BookOpen size={24} color="var(--color-primary)" />
+                    <span style={{...styles.logoText, fontSize: '20px'}}>BoiPara Nexus</span>
                   </Link>
-                ))}
-                {!user && (
-                  <button 
-                    className="premium-card" 
-                    style={{...styles.button, marginTop: '10px', width: '100%', textAlign: 'center'}}
-                    onClick={() => {
-                      setIsModalOpen(true);
-                      setIsMenuOpen(false);
-                    }}
-                  >
-                    Sign In
+                  <button onClick={() => setIsMenuOpen(false)} style={styles.closeMenuBtn}>
+                    <X size={24} />
                   </button>
-                )}
-              </div>
-            </motion.div>
+                </div>
+
+                <div style={styles.mobileLinks}>
+                  {navLinks.map((link) => (
+                    <Link 
+                      key={link.path} 
+                      to={link.path} 
+                      onClick={() => setIsMenuOpen(false)}
+                      style={{
+                        ...styles.mobileLink, 
+                        color: location.pathname === link.path ? 'var(--color-primary)' : 'var(--color-text-ink)',
+                        fontWeight: location.pathname === link.path ? '600' : '400'
+                      }}
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                  {!user && (
+                    <button 
+                      className="premium-card" 
+                      style={{...styles.button, marginTop: '20px', width: '100%', textAlign: 'center'}}
+                      onClick={() => {
+                        setIsModalOpen(true);
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      Sign In
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
       </nav>
@@ -149,18 +172,20 @@ const Navbar = () => {
 
 const styles = {
   nav: {
-    background: 'rgba(248, 244, 230, 0.85)',
-    backdropFilter: 'blur(12px)',
-    borderBottom: '1px solid rgba(44, 36, 27, 0.05)',
+    background: 'rgba(248, 244, 230, 0.95)',
+    borderBottom: '1px solid rgba(44, 36, 27, 0.08)',
     position: 'sticky',
     top: 0,
-    zIndex: 100,
-    padding: '16px 0',
+    zIndex: 1000,
+    height: '80px',
+    display: 'flex',
+    alignItems: 'center',
   },
   container: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    width: '100%',
   },
   logo: {
     display: 'flex',
@@ -177,6 +202,7 @@ const styles = {
   links: {
     display: 'flex',
     gap: '36px',
+    alignItems: 'center',
   },
   link: {
     fontSize: '15px',
@@ -189,16 +215,20 @@ const styles = {
   },
   authWrapper: {
     position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
   },
   button: {
-    padding: '10px 24px',
+    padding: '10px 28px',
     fontSize: '14px',
-    fontWeight: '500',
+    fontWeight: '600',
     color: 'var(--color-primary)',
-    border: '1px solid rgba(140, 58, 58, 0.3)',
+    border: '1.5px solid rgba(140, 58, 58, 0.3)',
     borderRadius: 'var(--radius-pill)',
     background: '#fff',
     cursor: 'pointer',
+    whiteSpace: 'nowrap',
+    minWidth: 'fit-content',
   },
   menuToggle: {
     display: 'none',
@@ -208,23 +238,45 @@ const styles = {
     padding: '4px',
     cursor: 'pointer',
   },
-  mobileMenu: {
-    position: 'absolute',
-    top: '100%',
+  menuBackdrop: {
+    position: 'fixed',
+    top: 0,
     left: 0,
     right: 0,
-    background: 'var(--color-bg-paper)',
-    padding: '24px',
-    borderBottom: '1px solid rgba(44, 36, 27, 0.1)',
-    boxShadow: '0 10px 20px rgba(0,0,0,0.05)',
-    zIndex: 90,
-    maxHeight: 'calc(100dvh - 80px)',
-    overflowY: 'auto',
+    bottom: 0,
+    background: 'rgba(44, 36, 27, 0.4)',
+    zIndex: 1100,
+  },
+  mobileMenu: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    width: '300px',
+    maxWidth: '85vw',
+    background: '#FFFDF9',
+    padding: '30px 24px',
+    boxShadow: '10px 0 30px rgba(0,0,0,0.1)',
+    zIndex: 1200,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '30px',
+  },
+  mobileMenuHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: '20px',
+    borderBottom: '1px dashed rgba(44, 36, 27, 0.1)',
+  },
+  closeMenuBtn: {
+    color: 'var(--color-text-ink)',
+    opacity: 0.6,
   },
   mobileLinks: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '20px',
+    gap: '24px',
   },
   mobileLink: {
     fontSize: '18px',

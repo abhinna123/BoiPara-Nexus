@@ -363,7 +363,6 @@ const styles = {
     right: 0,
     bottom: 0,
     backgroundColor: 'rgba(44, 36, 27, 0.4)',
-    backdropFilter: 'blur(4px)',
     zIndex: 999,
   },
   dragHandle: {

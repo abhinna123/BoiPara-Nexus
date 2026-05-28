@@ -16,7 +16,7 @@
     align-items: center !important;
     padding: 0 16px !important;
     position: relative !important;
-    height: 56px !important; /* Slightly taller for better touch targets */
+    height: 80px !important;
   }
 
   .nav-desktop-links {
@@ -26,10 +26,10 @@
   .nav-menu-toggle {
     display: flex !important;
     order: 1 !important;
-    width: 48px !important; /* Standard touch target size */
-    height: 48px !important;
+    width: 40px !important;
+    height: 40px !important;
     align-items: center !important;
-    justify-content: flex-start !important;
+    justify-content: center !important;
     z-index: 10 !important;
   }
 
@@ -48,14 +48,22 @@
 
   .nav-right-section {
     order: 3 !important;
-    width: 48px !important;
-    height: 48px !important;
+    min-width: 80px !important;
+    width: auto !important;
+    height: 40px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: flex-end !important;
     z-index: 10 !important;
   }
+
+  .sign-in-btn {
+    padding: 8px 16px !important;
+    font-size: 13px !important;
+    white-space: nowrap !important;
+  }
 }
+
 
 @media (max-width: 600px) {
   .logo-text {
