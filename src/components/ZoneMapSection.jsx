@@ -78,9 +78,10 @@ const ZoneMapSection = () => {
     
     // We want the node to center in the AVAILABLE map area
     // On desktop, available center is roughly at 32.5% from the left (excluding 450px panel)
-    // On mobile, available center is 50% as the panel stacks below
+    // On mobile, available center is 50% horizontally
+    // But we nudge targetY up to 40% when a zone is selected so it clears the bottom sheet
     const targetX = isMobile ? 50 : 32.5; 
-    const targetY = 50;
+    const targetY = isMobile ? (selectedZone ? 40 : 50) : 50;
     
     // Calculate translation to center the node at (targetX, targetY)
     // Formula: target_pos - (node_pos * scale)
