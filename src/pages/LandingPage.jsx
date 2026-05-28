@@ -176,7 +176,7 @@ const LandingPage = () => {
                 strokeWidth="1.5" 
                 strokeDasharray="4,4"
                 fill="none" 
-                opacity="0.15"
+                opacity="0.5"
                 animate={{ strokeDashoffset: [0, -20] }}
                 transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
               />
@@ -186,7 +186,7 @@ const LandingPage = () => {
                 strokeWidth="1.5" 
                 strokeDasharray="4,4"
                 fill="none" 
-                opacity="0.15"
+                opacity="0.5"
                 animate={{ strokeDashoffset: [0, -20] }}
                 transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
               />
@@ -196,7 +196,7 @@ const LandingPage = () => {
                 strokeWidth="1.5" 
                 strokeDasharray="4,4"
                 fill="none" 
-                opacity="0.15"
+                opacity="0.5"
                 animate={{ strokeDashoffset: [0, -20] }}
                 transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
               />
@@ -206,7 +206,7 @@ const LandingPage = () => {
                 strokeWidth="1.5" 
                 strokeDasharray="4,4"
                 fill="none" 
-                opacity="0.15"
+                opacity="0.5"
                 animate={{ strokeDashoffset: [0, -20] }}
                 transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
               />
@@ -455,6 +455,8 @@ const styles = {
     padding: '24px',
     position: 'relative',
     boxShadow: '3px 5px 0px rgba(92, 64, 51, 0.15)',
+    opacity: 1,
+    filter: 'none',
   },
   miniMapHeader: {
     display: 'flex',
@@ -473,7 +475,7 @@ const styles = {
     height: '220px',
     position: 'relative',
     width: '100%',
-    background: 'rgba(92, 64, 51, 0.02)',
+    background: '#FFFDF9',
     borderRadius: '16px',
     overflow: 'hidden',
   },
