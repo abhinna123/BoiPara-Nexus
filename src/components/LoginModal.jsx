@@ -160,8 +160,7 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 9999,
-    background: 'rgba(0, 0, 0, 0.35)',
-    backdropFilter: 'blur(4px)',
+    background: 'rgba(0, 0, 0, 0.7)',
     margin: 0,
     padding: 0,
     top: 0,
@@ -178,7 +177,6 @@ const styles = {
     transform: 'none',
     background: '#FFFDF9',
     padding: '48px 32px',
-    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E")`,
     boxShadow: '0 25px 80px rgba(0,0,0,0.3)',
     pointerEvents: 'auto',
     top: 'auto',
@@ -193,7 +191,7 @@ const styles = {
     padding: '8px',
     borderRadius: '50%',
     transition: 'background 0.2s',
-    opacity: 0.6,
+    opacity: 1,
     background: 'none',
     border: 'none',
     cursor: 'pointer',
@@ -212,7 +210,7 @@ const styles = {
   subtitle: {
     fontSize: '0.9rem',
     color: 'var(--color-text-ink)',
-    opacity: 0.7,
+    opacity: 1,
     lineHeight: '1.4',
   },
   error: {
@@ -240,7 +238,7 @@ const styles = {
     height: '50px',
   },
   inputIcon: {
-    opacity: 0.4,
+    opacity: 1,
     color: 'var(--color-text-ink)',
   },
   input: {
@@ -278,7 +276,7 @@ const styles = {
     padding: '0 12px',
     fontSize: '0.85rem',
     color: 'var(--color-text-ink)',
-    opacity: 0.4,
+    opacity: 1,
     zIndex: 1,
   },
   buttonGroup: {
@@ -321,7 +319,7 @@ const styles = {
   disclaimer: {
     fontSize: '0.75rem',
     color: 'var(--color-text-ink)',
-    opacity: 0.5,
+    opacity: 1,
     lineHeight: '1.4',
   }
 };

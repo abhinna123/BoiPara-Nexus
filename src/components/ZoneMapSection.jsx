@@ -106,7 +106,7 @@ const ZoneMapSection = () => {
             >
               {/* Subtle Decorative Elements */}
               {/* Compass Rose */}
-              <div className="compass-rose" style={{ position: 'absolute', top: '5%', right: '5%', opacity: 0.85, pointerEvents: 'none', zIndex: 6 }}>
+              <div className="compass-rose" style={{ position: 'absolute', top: '5%', right: '5%', opacity: 1, pointerEvents: 'none', zIndex: 6 }}>
                 <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
                   <circle cx="40" cy="40" r="34" stroke="#5C4033" strokeWidth="1.5" strokeDasharray="3,2" />
                   <circle cx="40" cy="40" r="31" stroke="#5C4033" strokeWidth="1.2" />
@@ -124,7 +124,7 @@ const ZoneMapSection = () => {
               </div>
 
               {/* Steaming Clay Tea Cup */}
-              <div style={{ position: 'absolute', bottom: '26%', left: '12%', opacity: 0.9, zIndex: 6, transform: 'rotate(5deg)' }}>
+              <div style={{ position: 'absolute', bottom: '26%', left: '12%', opacity: 1, zIndex: 6, transform: 'rotate(5deg)' }}>
                 <svg width="40" height="50" viewBox="0 0 40 50" fill="none">
                   <path className="steam-line" d="M16 14 Q 13 8, 16 3" stroke="#8C6D4F" strokeWidth="1.5" strokeLinecap="round" />
                   <path className="steam-line" d="M21 16 Q 25 10, 21 4" stroke="#8C6D4F" strokeWidth="1.5" strokeLinecap="round" />
@@ -136,13 +136,13 @@ const ZoneMapSection = () => {
 
               {/* SVG Knowledge Network Lines & Tram Tracks */}
               <svg viewBox="0 0 100 100" style={styles.svgNetwork} preserveAspectRatio="none">
-                <g opacity={selectedZone ? 0.2 : 0.35}>
+                <g opacity={1}>
                   <path d="M -10 40 C 25 42, 45 58, 110 52" stroke="#7A5A45" strokeWidth="5" strokeDasharray="1.5,7" fill="none" vectorEffect="non-scaling-stroke" />
                   <path d="M -10 39.2 C 25 41.2, 45 57.2, 110 51.2" stroke="#5A5A5A" strokeWidth="0.8" fill="none" vectorEffect="non-scaling-stroke" />
                   <path d="M -10 40.8 C 25 42.8, 45 58.8, 110 52.8" stroke="#5A5A5A" strokeWidth="0.8" fill="none" vectorEffect="non-scaling-stroke" />
                 </g>
 
-                <g opacity={selectedZone ? 0.4 : 1}>
+                <g opacity={1}>
                   {/* Roads */}
                   <path d="M 20 15 Q 45 10 75 35" stroke="#422B1E" strokeWidth="4.2" fill="none" vectorEffect="non-scaling-stroke" />
                   <path d="M 20 15 Q 45 10 75 35" stroke="#FFFDF9" strokeWidth="2.5" fill="none" vectorEffect="non-scaling-stroke" />
@@ -169,7 +169,6 @@ const ZoneMapSection = () => {
               {/* Zone Nodes */}
               {zonesData.map((zone, index) => {
                 const isSelected = selectedZone?.id === zone.id;
-                const isDimmed = selectedZone && !isSelected;
                 const isHighlighted = isSelected && highlightedStall;
                 
                 return (
@@ -189,7 +188,7 @@ const ZoneMapSection = () => {
                         ? 'translate(-50%, calc(-50% - 10px)) scale(1.1) rotate(1deg)' 
                         : 'translate(-50%, -50%)',
                       zIndex: isSelected ? 15 : 10,
-                      opacity: isDimmed ? 0.5 : 1,
+                      opacity: 1,
                       transition: 'all 0.8s cubic-bezier(0.22, 1, 0.36, 1)',
                       animationDelay: `${index * 0.15}s`
                     }}
@@ -330,15 +329,13 @@ const styles = {
   subheading: {
     fontSize: '1.2rem',
     color: 'var(--color-text-ink)',
-    opacity: 0.8,
+    opacity: 1,
   },
   mapContainer: {
     position: 'relative',
     width: '100%',
     height: '650px',
     backgroundColor: '#F8F4E6',
-    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.07'/%3E%3C/svg%3E"), radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.5) 0%, rgba(248, 244, 230, 0.75) 100%)`,
-    backgroundBlendMode: 'multiply',
     borderRadius: '45px 15px 45px 15px',
     boxShadow: 'inset 0 0 45px rgba(92, 64, 51, 0.12), 0 12px 36px rgba(44, 36, 27, 0.04)',
     overflow: 'hidden',
@@ -362,7 +359,7 @@ const styles = {
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(44, 36, 27, 0.4)',
+    backgroundColor: 'rgba(44, 36, 27, 0.7)',
     zIndex: 999,
   },
   dragHandle: {
@@ -422,7 +419,7 @@ const styles = {
   },
   closeBtn: {
     color: 'var(--color-text-ink)',
-    opacity: 0.6,
+    opacity: 1,
     transition: 'opacity 0.2s, transform 0.2s',
   },
   panelContent: {
@@ -434,7 +431,7 @@ const styles = {
     fontSize: '1.05rem',
     lineHeight: '1.6',
     color: 'var(--color-text-ink)',
-    opacity: 0.85,
+    opacity: 1,
   },
   statGroup: {
     display: 'flex',
@@ -466,7 +463,7 @@ const styles = {
     gap: '10px',
     listStyleType: 'disc',
     color: 'var(--color-text-ink)',
-    opacity: 0.85,
+    opacity: 1,
   },
   tagContainer: {
     display: 'flex',
