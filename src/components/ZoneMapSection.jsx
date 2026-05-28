@@ -39,6 +39,16 @@ const ZoneMapSection = () => {
   const [searchParams] = useSearchParams();
   const [selectedZone, setSelectedZone] = useState(null);
   const [highlightedStall, setHighlightedStall] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const zoneId = searchParams.get('zone');
@@ -66,9 +76,10 @@ const ZoneMapSection = () => {
     // Scale factor for zoom (Reduced to 1.3x per requirements)
     const scale = 1.3;
     
-    // We want the node to center in the AVAILABLE map area (excluding 450px side panel)
-    // On a 1280px container, the available center is roughly at 32.5% from the left
-    const targetX = 32.5; 
+    // We want the node to center in the AVAILABLE map area
+    // On desktop, available center is roughly at 32.5% from the left (excluding 450px panel)
+    // On mobile, available center is 50% as the panel stacks below
+    const targetX = isMobile ? 50 : 32.5; 
     const targetY = 50;
     
     // Calculate translation to center the node at (targetX, targetY)
@@ -219,9 +230,10 @@ const ZoneMapSection = () => {
             </motion.div>
           </div>
 
-          {/* Mobile Overlay */}
+          {/* Mobile Overlay - Only on desktop to focus the panel if needed, 
+              but user said don't darken map. Keeping it light on desktop only. */}
           <AnimatePresence>
-            {selectedZone && (
+            {selectedZone && !isMobile && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
