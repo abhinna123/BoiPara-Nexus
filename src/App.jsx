@@ -8,9 +8,9 @@ import StoriesPage from './pages/StoriesPage'
 
 function App() {
   return (
-    <>
+    <div className="app-root">
       <Navbar />
-      <main>
+      <main className="app-main">
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/map" element={<MapPage />} />
@@ -19,7 +19,7 @@ function App() {
           <Route path="/stories" element={<StoriesPage />} />
         </Routes>
       </main>
-    </>
+    </div>
   )
 }
 
