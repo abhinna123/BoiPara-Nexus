@@ -98,47 +98,18 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Menu Sidebar Drawer */}
+        {/* Mobile Menu Dropdown */}
         <AnimatePresence>
           {isMenuOpen && (
-            <>
-              {/* Dark Transparent Backdrop */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setIsMenuOpen(false)}
-                className="menu-backdrop"
-                style={{
-                  position: 'fixed',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'rgba(44, 36, 27, 0.4)',
-                  zIndex: 1100,
-                }}
-              />
-              
-              {/* Sidebar Drawer */}
-              <motion.div 
-                initial={{ x: '-100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: '-100%' }}
-                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="mobile-menu-drawer"
-              >
-                <div className="mobile-menu-header">
-                  <Link to="/" className="nav-logo" onClick={() => setIsMenuOpen(false)}>
-                    <BookOpen size={24} color="var(--color-primary)" />
-                    <span className="logo-text" style={{ fontSize: '20px' }}>BoiPara Nexus</span>
-                  </Link>
-                  <button onClick={() => setIsMenuOpen(false)} className="close-menu-btn" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                    <X size={24} />
-                  </button>
-                </div>
-
-                <div className="mobile-links" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <motion.div 
+              initial={{ opacity: 0, y: -20, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: 'auto' }}
+              exit={{ opacity: 0, y: -20, height: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="mobile-menu-dropdown"
+            >
+              <div className="container mobile-menu-container">
+                <div className="mobile-links">
                   {navLinks.map((link) => (
                     <Link 
                       key={link.path} 
@@ -149,10 +120,9 @@ const Navbar = () => {
                       {link.name}
                     </Link>
                   ))}
-                  {!user && (
+                  {!user ? (
                     <button 
-                      className="sign-in-btn" 
-                      style={{ marginTop: '20px', width: '100%' }}
+                      className="sign-in-btn mobile-sign-in" 
                       onClick={() => {
                         setIsModalOpen(true);
                         setIsMenuOpen(false);
@@ -160,10 +130,23 @@ const Navbar = () => {
                     >
                       Sign In
                     </button>
+                  ) : (
+                    <div className="mobile-user-info">
+                      <div className="mobile-user-details">
+                        <p className="user-name">{user.displayName || 'Researcher'}</p>
+                        <p className="user-email">{user.email}</p>
+                      </div>
+                      <button onClick={() => {
+                        logout();
+                        setIsMenuOpen(false);
+                      }} className="nav-logout-btn mobile-logout">
+                        <LogOut size={16} /> Logout
+                      </button>
+                    </div>
                   )}
                 </div>
-              </motion.div>
-            </>
+              </div>
+            </motion.div>
           )}
         </AnimatePresence>
       </nav>

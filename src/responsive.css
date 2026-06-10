@@ -9,13 +9,9 @@
 }
 
 /* Navbar */
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   .nav-container {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    padding: 0 16px !important;
-    position: relative !important;
+    padding: 0 20px !important;
     height: 80px !important;
   }
 
@@ -25,35 +21,27 @@
 
   .nav-menu-toggle {
     display: flex !important;
-    order: 1 !important;
+    order: 3 !important;
     width: 40px !important;
     height: 40px !important;
     align-items: center !important;
-    justify-content: center !important;
+    justify-content: flex-end !important;
     z-index: 10 !important;
   }
 
   .nav-logo {
-    order: 2 !important;
-    position: absolute !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    margin: 0 !important;
-    z-index: 5 !important;
-    white-space: nowrap !important;
+    order: 1 !important;
     display: flex !important;
     align-items: center !important;
     gap: 8px !important;
   }
 
   .nav-right-section {
-    order: 3 !important;
-    min-width: 80px !important;
-    width: auto !important;
-    height: 40px !important;
+    order: 2 !important;
+    margin-left: auto !important;
+    margin-right: 12px !important;
     display: flex !important;
     align-items: center !important;
-    justify-content: flex-end !important;
     z-index: 10 !important;
   }
 
