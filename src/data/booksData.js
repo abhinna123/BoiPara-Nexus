@@ -10,7 +10,8 @@ export const booksData = [
     location: 'College Street Crossing',
     phoneNumber: '919876543210',
     coverColor: '#3A7CA5',
-    description: 'The standard textbook on algorithm design and analysis used globally by CS students.'
+    description: 'The standard textbook on algorithm design and analysis used globally by CS students.',
+    tags: ['dsa', 'algorithms', 'computer science', 'programming', 'data structures']
   },
   {
     id: 2,
@@ -23,7 +24,8 @@ export const booksData = [
     location: 'Main Road opposite Presidency University',
     phoneNumber: '919123456789',
     coverColor: '#D4A373',
-    description: 'A classic of Bengali literature tracing the lives of Apu and Durga in rural Bengal.'
+    description: 'A classic of Bengali literature tracing the lives of Apu and Durga in rural Bengal.',
+    tags: ['bengali', 'classic', 'novel', 'story', 'heritage']
   },
   {
     id: 3,
@@ -36,7 +38,8 @@ export const booksData = [
     location: 'Near Medical College Gate',
     phoneNumber: '919888777666',
     coverColor: '#4B7F52',
-    description: 'A classic medical textbook on human anatomy, fully updated for modern students.'
+    description: 'A classic medical textbook on human anatomy, fully updated for modern students.',
+    tags: ['medical', 'anatomy', 'biology', 'science', 'doctor']
   },
   {
     id: 4,
@@ -49,7 +52,8 @@ export const booksData = [
     location: 'Surya Sen Street',
     phoneNumber: '919000111222',
     coverColor: '#B0413E',
-    description: 'The ultimate guide on Indian governance and constitution, highly recommended for civil services.'
+    description: 'The ultimate guide on Indian governance and constitution, highly recommended for civil services.',
+    tags: ['upsc', 'polity', 'government', 'constitution', 'exams']
   },
   {
     id: 5,
@@ -62,7 +66,8 @@ export const booksData = [
     location: 'Harrison Road corner',
     phoneNumber: '919333444555',
     coverColor: '#D4A373',
-    description: 'A psychological novel explore complex human relationships, adultery, and distrust.'
+    description: 'A psychological novel explore complex human relationships, adultery, and distrust.',
+    tags: ['tagore', 'bengali', 'literature', 'novel', 'classic']
   },
   {
     id: 6,
@@ -75,7 +80,8 @@ export const booksData = [
     location: 'Bankim Chatterjee Street',
     phoneNumber: '919444555666',
     coverColor: '#3A7CA5',
-    description: 'An essential textbook for university-level calculus-based physics courses.'
+    description: 'An essential textbook for university-level calculus-based physics courses.',
+    tags: ['physics', 'science', 'engineering', 'mechanics', 'problem solving']
   },
   {
     id: 7,
@@ -88,7 +94,8 @@ export const booksData = [
     location: 'Near Coffee House',
     phoneNumber: '919555666777',
     coverColor: '#D4A373',
-    description: 'A collection of beautiful poems that won Tagore the Nobel Prize in Literature.'
+    description: 'A collection of beautiful poems that won Tagore the Nobel Prize in Literature.',
+    tags: ['poetry', 'tagore', 'bengali', 'literature', 'spiritual']
   },
   {
     id: 8,
@@ -101,7 +108,8 @@ export const booksData = [
     location: 'Surya Sen Street',
     phoneNumber: '919666777888',
     coverColor: '#3A7CA5',
-    description: 'A landmark publication on cosmology, explaining black holes and quantum mechanics.'
+    description: 'A landmark publication on cosmology, explaining black holes and quantum mechanics.',
+    tags: ['science', 'physics', 'cosmology', 'space', 'universe']
   },
   {
     id: 9,
@@ -114,7 +122,8 @@ export const booksData = [
     location: 'Opposite Calcutta Medical College',
     phoneNumber: '919777888999',
     coverColor: '#4B7F52',
-    description: 'The premier reference work on clinical medicine, pathology, and therapeutics.'
+    description: 'The premier reference work on clinical medicine, pathology, and therapeutics.',
+    tags: ['medical', 'medicine', 'health', 'internal medicine', 'reference']
   },
   {
     id: 10,
@@ -127,7 +136,8 @@ export const booksData = [
     location: 'Surya Sen Street',
     phoneNumber: '919888999000',
     coverColor: '#B0413E',
-    description: 'An elementary study of physical geography, crucial for basic civil services prep.'
+    description: 'An elementary study of physical geography, crucial for basic civil services prep.',
+    tags: ['upsc', 'geography', 'exams', 'civil services', 'environment']
   },
   {
     id: 11,
@@ -140,7 +150,8 @@ export const booksData = [
     location: 'Harrison Road corner',
     phoneNumber: '919333444555',
     coverColor: '#D4A373',
-    description: 'The complete detective chronicles of Byomkesh Bakshi, Kolkata’s truth-seeker.'
+    description: 'The complete detective chronicles of Byomkesh Bakshi, Kolkata’s truth-seeker.',
+    tags: ['detective', 'mystery', 'bengali', 'classic', 'thriller']
   },
   {
     id: 12,
@@ -153,7 +164,8 @@ export const booksData = [
     location: 'Bankim Chatterjee Street',
     phoneNumber: '919444555666',
     coverColor: '#3A7CA5',
-    description: 'A foundational physics manual, prized by IIT-JEE aspirants all over India.'
+    description: 'A foundational physics manual, prized by IIT-JEE aspirants all over India.',
+    tags: ['physics', 'iit-jee', 'science', 'problems', 'mechanics']
   },
   {
     id: 13,
@@ -166,7 +178,8 @@ export const booksData = [
     location: 'Presidency Gate area',
     phoneNumber: '919111222333',
     coverColor: '#B0413E',
-    description: 'A detailed analysis of the Indian economic system, policies, and developments.'
+    description: 'A detailed analysis of the Indian economic system, policies, and developments.',
+    tags: ['upsc', 'economy', 'india', 'finance', 'policy']
   },
   {
     id: 14,
@@ -179,7 +192,8 @@ export const booksData = [
     location: 'Medical College Hostel Lane',
     phoneNumber: '919222333444',
     coverColor: '#4B7F52',
-    description: 'Highly detailed guide to medical physiology, cellular biology, and clinical practice.'
+    description: 'Highly detailed guide to medical physiology, cellular biology, and clinical practice.',
+    tags: ['medical', 'physiology', 'biology', 'science', 'textbook']
   },
   {
     id: 15,
@@ -192,7 +206,8 @@ export const booksData = [
     location: 'Harrison Road corner',
     phoneNumber: '919333444555',
     coverColor: '#D4A373',
-    description: 'The early detective adventures of Prodosh Chandra Mitter, alias Feluda.'
+    description: 'The early detective adventures of Prodosh Chandra Mitter, alias Feluda.',
+    tags: ['mystery', 'detective', 'bengali', 'satyajit ray', 'thriller']
   },
   {
     id: 16,
@@ -205,7 +220,8 @@ export const booksData = [
     location: 'Surya Sen Street',
     phoneNumber: '919000111222',
     coverColor: '#B0413E',
-    description: 'Comprehensive aptitude and verbal reasoning guides for competitive exams.'
+    description: 'Comprehensive aptitude and verbal reasoning guides for competitive exams.',
+    tags: ['upsc', 'aptitude', 'reasoning', 'exams', 'logic']
   },
   {
     id: 17,
@@ -218,7 +234,8 @@ export const booksData = [
     location: 'Surya Sen Street',
     phoneNumber: '919666777888',
     coverColor: '#3A7CA5',
-    description: 'Simple and practical guide to code design, complexity analysis, and algorithms.'
+    description: 'Simple and practical guide to code design, complexity analysis, and algorithms.',
+    tags: ['dsa', 'programming', 'algorithms', 'interviews', 'coding']
   },
   {
     id: 18,
@@ -231,7 +248,8 @@ export const booksData = [
     location: 'Near Medical College Gate',
     phoneNumber: '919888777666',
     coverColor: '#4B7F52',
-    description: 'Comprehensive guide to pathology, disease mechanisms, and clinical correlations.'
+    description: 'Comprehensive guide to pathology, disease mechanisms, and clinical correlations.',
+    tags: ['medical', 'pathology', 'science', 'disease', 'medicine']
   },
   {
     id: 19,
@@ -242,9 +260,10 @@ export const booksData = [
     stallName: "Techno Books",
     stallNumber: "Block A, Shop 4",
     location: "College Street",
-    phoneNumber: "", // Testing fallback
+    phoneNumber: "",
     coverColor: "#A37CA5",
-    description: "Complete Java and DSA preparation guide."
+    description: "Complete Java and DSA preparation guide.",
+    tags: ['dsa', 'java', 'programming', 'coding', 'algorithms']
   },
   {
     id: 20,
@@ -257,6 +276,35 @@ export const booksData = [
     location: "College Street",
     phoneNumber: "919444555666",
     coverColor: "#4B7F52",
-    description: "Beginner friendly Java learning book."
+    description: "Beginner friendly Java learning book.",
+    tags: ['java', 'programming', 'beginner', 'coding', 'java programming']
+  },
+  {
+    id: 21,
+    title: "Competitive Programmer's Handbook",
+    author: "Antti Laaksonen",
+    category: "Engineering",
+    price: "₹450",
+    stallName: "Techno Books",
+    stallNumber: "Stall 4",
+    location: "College Street Crossing",
+    phoneNumber: "919876543210",
+    coverColor: "#3A7CA5",
+    description: "A comprehensive guide to competitive programming and dsa.",
+    tags: ['dsa', 'competitive programming', 'coding', 'algorithms', 'programming']
+  },
+  {
+    id: 22,
+    title: "Spectrum Modern History",
+    author: "Rajiv Ahir",
+    category: "UPSC",
+    price: "₹380",
+    stallName: "Competition Care",
+    stallNumber: "Stall 8",
+    location: "Surya Sen Street",
+    phoneNumber: "919888999000",
+    coverColor: "#B0413E",
+    description: "Comprehensive history of modern India for civil services preparation.",
+    tags: ['upsc', 'history', 'modern india', 'exams', 'civil services']
   }
 ];

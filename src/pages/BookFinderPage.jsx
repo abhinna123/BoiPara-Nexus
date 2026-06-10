@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Search, MapPin, ArrowLeft, Compass, X, Heart, Clock } from 'lucide-react';
+import { BookOpen, Search, MapPin, ArrowLeft, Compass, X, Heart, Clock, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { booksData } from '../data/booksData';
 import { useAuth } from '../context/AuthContext';
@@ -275,6 +275,48 @@ const BookFinderPage = () => {
   const [selectedBook, setSelectedBook] = useState(null);
   const { user, wishlist, toggleWishlist } = useAuth();
   const { recentlyViewedIds, addViewedBook } = useRecentlyViewed();
+
+  // AI Recommendation Engine (Local Scoring Logic)
+  const aiRecommendations = useMemo(() => {
+    const query = debouncedQuery.toLowerCase().trim();
+    if (!query || query.length < 2) return [];
+
+    const scores = booksData.map(book => {
+      let score = 0;
+      const title = book.title.toLowerCase();
+      const author = book.author.toLowerCase();
+      const category = book.category.toLowerCase();
+      const desc = book.description.toLowerCase();
+      const tags = book.tags || [];
+
+      // 1. Exact Title Match (High Priority)
+      if (title === query) score += 20;
+      else if (title.includes(query)) score += 10;
+
+      // 2. Tag Relevance
+      tags.forEach(tag => {
+        if (tag.toLowerCase() === query) score += 15;
+        else if (tag.toLowerCase().includes(query)) score += 5;
+      });
+
+      // 3. Category Match
+      if (category.toLowerCase().includes(query)) score += 8;
+
+      // 4. Author Match
+      if (author.toLowerCase().includes(query)) score += 6;
+
+      // 5. Description Context
+      if (desc.toLowerCase().includes(query)) score += 3;
+
+      return { ...book, aiScore: score };
+    });
+
+    // Sort by score and take top 5
+    return scores
+      .filter(book => book.aiScore > 0)
+      .sort((a, b) => b.aiScore - a.aiScore)
+      .slice(0, 5);
+  }, [debouncedQuery]);
 
   const handleBookSelect = (book) => {
     setSelectedBook(book);
@@ -554,6 +596,40 @@ const BookFinderPage = () => {
           </div>
         )}
 
+        {/* AI Recommendations Section */}
+        {debouncedQuery && (
+          <div style={styles.aiWrapper}>
+            <div style={styles.sectionHeader}>
+              <div style={styles.aiIconBadge}>
+                <Sparkles size={20} color="#FFFDF9" fill="#FFFDF9" />
+              </div>
+              <h2 style={styles.sectionTitle}>AI Recommended Books</h2>
+            </div>
+            
+            {aiRecommendations.length > 0 ? (
+              <div className="recently-viewed-scroll" style={styles.horizontalScroll}>
+                {aiRecommendations.map(book => (
+                  <div key={`ai-${book.id}`} style={{ flex: '0 0 280px', margin: '4px' }}>
+                    <BookCard 
+                      book={book}
+                      wishlist={wishlist}
+                      onWishlistClick={handleWishlistClick}
+                      onSelect={handleBookSelect}
+                      onLocate={handleViewOnMap}
+                      styles={styles}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={styles.emptyRecentState}>
+                <p>Try searching for a topic to get AI-powered recommendations.</p>
+              </div>
+            )}
+            <div style={styles.aiDivider} />
+          </div>
+        )}
+
         {/* Loading and Results Grid */}
         <div style={{ position: 'relative', minHeight: '350px', width: '100%' }}>
           <AnimatePresence mode="wait">
@@ -761,6 +837,27 @@ const styles = {
     fontSize: '1.75rem',
     color: 'var(--color-primary)',
     margin: 0,
+  },
+  aiWrapper: {
+    width: '100%',
+    marginBottom: '40px',
+    padding: '0 10px',
+    position: 'relative',
+  },
+  aiIconBadge: {
+    backgroundColor: 'var(--color-primary)',
+    padding: '8px',
+    borderRadius: '12px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: '0 4px 12px rgba(140, 58, 58, 0.3)',
+  },
+  aiDivider: {
+    height: '1px',
+    width: '100%',
+    background: 'linear-gradient(90deg, transparent, rgba(140, 58, 58, 0.2), transparent)',
+    margin: '20px 0 40px 0',
   },
   horizontalScroll: {
     display: 'flex',
