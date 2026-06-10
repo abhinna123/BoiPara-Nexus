@@ -325,8 +325,7 @@ const BookFinderPage = () => {
     { value: 'relevance', label: 'Relevance' },
     { value: 'price-low-high', label: 'Price Low → High' },
     { value: 'price-high-low', label: 'Price High → Low' },
-    { value: 'title-asc', label: 'Alphabetical (A → Z)' },
-    { value: 'nearest-stall', label: 'Nearest Stall' }
+    { value: 'title-asc', label: 'Alphabetical (A → Z)' }
   ];
 
   return (
