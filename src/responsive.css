@@ -132,6 +132,7 @@
     letter-spacing: 0.5px !important;
     border-radius: 14px !important;
   }
+  /* Hide floating recommendation tags on mobile */
   .floating-card {
     display: none !important; 
   }
