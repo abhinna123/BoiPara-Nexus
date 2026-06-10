@@ -256,12 +256,26 @@
 .mobile-user-details {
   margin-bottom: 16px;
 }
-
+/* Mobile Logout */
 .mobile-logout {
   width: 100%;
   justify-content: center;
   background: #fff;
   border: 1px solid rgba(140, 58, 58, 0.2);
+}
+
+.nav-menu-toggle {
+  display: none;
+  color: var(--color-text-ink);
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.nav-menu-toggle:hover {
+  color: var(--color-primary);
 }
 
 /* Responsive Overrides */
