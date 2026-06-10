@@ -358,3 +358,42 @@
     font-size: 1.6rem !important;
   }
 }
+
+/* Book Details Modal Mobile Styling */
+@media (max-width: 768px) {
+  .book-details-overlay {
+    padding: 16px !important;
+  }
+  .book-details-container {
+    padding: 24px !important;
+    width: 100% !important;
+    max-width: 450px !important;
+    max-height: 85vh !important;
+    max-height: 85dvh !important;
+  }
+  .book-details-content {
+    flex-direction: column !important;
+    gap: 20px !important;
+  }
+  .book-details-cover-col {
+    flex: none !important;
+    width: 100% !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .book-details-cover-col > div {
+    max-width: 160px !important;
+    padding: 12px 8px !important;
+  }
+  .book-details-info-col {
+    width: 100% !important;
+  }
+  .book-details-info-col h2 {
+    font-size: 1.5rem !important;
+  }
+  .book-details-info-col button.hover-lift {
+    width: 100% !important;
+    align-self: stretch !important;
+  }
+}
+

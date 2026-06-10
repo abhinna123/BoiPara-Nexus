@@ -3,6 +3,7 @@ import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Search, MapPin, ArrowLeft, Compass, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { booksData } from '../data/booksData';
+import BookDetailsModal from '../components/BookDetailsModal';
 
 // Fuzzy search utility function
 const fuzzyMatch = (searchTerm, text) => {
@@ -201,6 +202,7 @@ const BookFinderPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isLoading, setIsLoading] = useState(false);
   const [sortBy, setSortBy] = useState("relevance");
+  const [selectedBook, setSelectedBook] = useState(null);
 
   // Synchronize local input state with URL search param
   useEffect(() => {
@@ -469,7 +471,8 @@ const BookFinderPage = () => {
                     transition={{ duration: 0.35 }}
                     whileHover={{ y: -6, rotate: 1.0, boxShadow: '5px 8px 0px rgba(92, 64, 51, 0.2)' }}
                     className="premium-card book-card wobbly-border"
-                    style={styles.bookCard}
+                    style={{ ...styles.bookCard, cursor: 'pointer' }}
+                    onClick={() => setSelectedBook(book)}
                   >
                     <div style={styles.coverWrapper}>
                       <BookCover title={book.title} author={book.author} color={book.coverColor} />
@@ -547,6 +550,12 @@ const BookFinderPage = () => {
         </div>
 
       </div>
+      <BookDetailsModal
+        isOpen={Boolean(selectedBook)}
+        onClose={() => setSelectedBook(null)}
+        book={selectedBook}
+        onLocate={handleViewOnMap}
+      />
     </div>
   );
 };
