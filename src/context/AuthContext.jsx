@@ -7,7 +7,7 @@ import {
   signOut,
   updateProfile
 } from 'firebase/auth';
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp, onSnapshot, arrayUnion, arrayRemove, updateDoc } from 'firebase/firestore';
 import { auth, googleProvider, db } from '../firebase';
 
 const AuthContext = createContext();
@@ -16,6 +16,7 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Sync user data to Firestore
@@ -35,6 +36,11 @@ export const AuthProvider = ({ children }) => {
         createdAt: serverTimestamp(),
         lastLogin: serverTimestamp(),
       });
+      
+      // Initialize empty wishlist
+      await setDoc(doc(db, 'wishlists', firebaseUser.uid), {
+        items: []
+      });
     } else {
       // Update last login
       await setDoc(userRef, { lastLogin: serverTimestamp() }, { merge: true });
@@ -42,15 +48,33 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    let unsubscribeWishlist = () => {};
+
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
         syncUserToFirestore(currentUser);
+        
+        // Listen to wishlist changes
+        const wishlistRef = doc(db, 'wishlists', currentUser.uid);
+        unsubscribeWishlist = onSnapshot(wishlistRef, (doc) => {
+          if (doc.exists()) {
+            setWishlist(doc.data().items || []);
+          } else {
+            setWishlist([]);
+          }
+        });
+      } else {
+        setWishlist([]);
+        unsubscribeWishlist();
       }
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+      unsubscribeWishlist();
+    };
   }, []);
 
   const googleSignIn = async () => {
@@ -100,13 +124,36 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const toggleWishlist = async (bookId) => {
+    if (!user) return;
+
+    const wishlistRef = doc(db, 'wishlists', user.uid);
+    const isSaved = wishlist.includes(bookId);
+
+    try {
+      // Ensure the document exists before updating
+      const docSnap = await getDoc(wishlistRef);
+      if (!docSnap.exists()) {
+        await setDoc(wishlistRef, { items: [bookId] });
+      } else {
+        await updateDoc(wishlistRef, {
+          items: isSaved ? arrayRemove(bookId) : arrayUnion(bookId)
+        });
+      }
+    } catch (error) {
+      console.error("Error toggling wishlist:", error);
+    }
+  };
+
   const value = {
     user,
+    wishlist,
     loading,
     googleSignIn,
     emailSignUp,
     emailLogin,
-    logout
+    logout,
+    toggleWishlist
   };
 
   return (

@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Search, MapPin, ArrowLeft, Compass, X } from 'lucide-react';
+import { BookOpen, Search, MapPin, ArrowLeft, Compass, X, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { booksData } from '../data/booksData';
+import { useAuth } from '../context/AuthContext';
 import BookDetailsModal from '../components/BookDetailsModal';
 
 // Fuzzy search utility function
@@ -203,6 +204,7 @@ const BookFinderPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [sortBy, setSortBy] = useState("relevance");
   const [selectedBook, setSelectedBook] = useState(null);
+  const { user, wishlist, toggleWishlist } = useAuth();
 
   // Synchronize local input state with URL search param
   useEffect(() => {
@@ -250,6 +252,15 @@ const BookFinderPage = () => {
     };
     const zoneId = categoryToZone[book.category] || 'engineering';
     navigate(`/map?zone=${zoneId}&stall=${encodeURIComponent(book.stallName)}`);
+  };
+
+  const handleWishlistClick = (e, bookId) => {
+    e.stopPropagation();
+    if (!user) {
+      alert("Please log in to save books to your wishlist.");
+      return;
+    }
+    toggleWishlist(bookId);
   };
 
   const clearSearch = () => {
@@ -475,6 +486,18 @@ const BookFinderPage = () => {
                   >
                     <div style={styles.coverWrapper}>
                       <BookCover title={book.title} author={book.author} color={book.coverColor} />
+                      {/* Wishlist Heart Button */}
+                      <button 
+                        onClick={(e) => handleWishlistClick(e, book.id)}
+                        style={{
+                          ...styles.wishlistBtn,
+                          color: wishlist.includes(book.id) ? '#FF4B4B' : 'rgba(92, 64, 51, 0.4)',
+                          backgroundColor: wishlist.includes(book.id) ? '#FFF0F0' : '#FFFDF9'
+                        }}
+                        title={wishlist.includes(book.id) ? "Remove from Wishlist" : "Save to Wishlist"}
+                      >
+                        <Heart size={20} fill={wishlist.includes(book.id) ? '#FF4B4B' : 'none'} />
+                      </button>
                     </div>
                     <div style={styles.cardDetails}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
@@ -687,6 +710,21 @@ const styles = {
     padding: '12px 0 24px',
     borderBottom: '1.5px dashed rgba(92, 64, 51, 0.12)',
     marginBottom: '20px',
+    position: 'relative',
+  },
+  wishlistBtn: {
+    position: 'absolute',
+    top: '0',
+    right: '0',
+    padding: '10px',
+    borderRadius: '12px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'all 0.2s',
+    border: '1.5px solid #5C403315',
+    cursor: 'pointer',
+    zIndex: 10,
   },
   cardDetails: {
     display: 'flex',

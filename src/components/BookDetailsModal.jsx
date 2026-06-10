@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, MapPin, Compass } from 'lucide-react';
+import { X, MapPin, Compass, Heart } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import BookCover from './BookCover';
 
 const BookDetailsModal = ({ isOpen, onClose, book, onLocate }) => {
+  const { user, wishlist, toggleWishlist } = useAuth();
   // Listen for Escape key to close modal
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -39,6 +41,17 @@ const BookDetailsModal = ({ isOpen, onClose, book, onLocate }) => {
   const displayStallName = book?.stallName || 'Unknown Stall';
   const displayLocation = book?.location || 'Location Not Specified';
   const displayCoverColor = book?.coverColor || '#8C3A3A';
+
+  const isSaved = book ? wishlist.includes(book.id) : false;
+
+  const handleWishlistClick = (e) => {
+    e.stopPropagation();
+    if (!user) {
+      alert("Please log in to save books to your wishlist.");
+      return;
+    }
+    toggleWishlist(book.id);
+  };
 
   return (
     <AnimatePresence>
@@ -110,19 +123,37 @@ const BookDetailsModal = ({ isOpen, onClose, book, onLocate }) => {
                   </div>
                 </div>
 
-                {onLocate && book && (
-                  <button 
-                    onClick={() => {
-                      onClose();
-                      onLocate(book);
-                    }}
-                    style={styles.locateBtn}
-                    className="hover-lift"
-                  >
-                    <Compass size={20} />
-                    <span>Locate on Map</span>
-                  </button>
-                )}
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                  {onLocate && book && (
+                    <button 
+                      onClick={() => {
+                        onClose();
+                        onLocate(book);
+                      }}
+                      style={styles.locateBtn}
+                      className="hover-lift"
+                    >
+                      <Compass size={20} />
+                      <span>Locate on Map</span>
+                    </button>
+                  )}
+
+                  {book && (
+                    <button 
+                      onClick={handleWishlistClick}
+                      style={{
+                        ...styles.wishlistBtn,
+                        backgroundColor: isSaved ? '#FFF0F0' : '#FFFDF9',
+                        color: isSaved ? '#FF4B4B' : 'var(--color-text-ink)',
+                        borderColor: isSaved ? '#FF4B4B' : '#5C4033',
+                      }}
+                      className="hover-lift"
+                    >
+                      <Heart size={20} fill={isSaved ? '#FF4B4B' : 'none'} />
+                      <span>{isSaved ? 'Saved to Wishlist' : 'Save to Wishlist'}</span>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </motion.div>
@@ -301,6 +332,22 @@ const styles = {
     boxShadow: '3px 5px 0px rgba(140, 58, 58, 0.3)',
     cursor: 'pointer',
     transition: 'background-color 0.2s, transform 0.2s, box-shadow 0.2s',
+    alignSelf: 'flex-start',
+    width: 'auto',
+  },
+  wishlistBtn: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '10px',
+    padding: '14px 28px',
+    borderRadius: 'var(--radius-pill)',
+    fontSize: '1rem',
+    fontWeight: '600',
+    border: '1.5px solid #5C4033',
+    boxShadow: '3px 5px 0px rgba(92, 64, 51, 0.1)',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
     alignSelf: 'flex-start',
     width: 'auto',
   }

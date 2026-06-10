@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { BookOpen, User as UserIcon, LogOut, Menu, X } from 'lucide-react';
+import { BookOpen, User as UserIcon, LogOut, Menu, X, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import LoginModal from './LoginModal';
@@ -20,6 +20,11 @@ const Navbar = () => {
     { name: 'Student Adda', path: '/adda' },
     { name: 'Heritage Stories', path: '/stories' },
   ];
+
+  // Add Wishlist link for logged-in users
+  if (user) {
+    navLinks.push({ name: 'Wishlist', path: '/wishlist' });
+  }
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -79,6 +84,14 @@ const Navbar = () => {
                           <p className="user-name">{user.displayName || 'Researcher'}</p>
                           <p className="user-email">{user.email}</p>
                         </div>
+                        <Link 
+                          to="/wishlist" 
+                          className="nav-logout-btn" 
+                          style={{ color: 'var(--color-text-ink)', marginBottom: '8px', textDecoration: 'none' }}
+                          onClick={() => setIsProfileOpen(false)}
+                        >
+                          <Heart size={16} color="#FF4B4B" fill="#FF4B4B" /> Your Wishlist
+                        </Link>
                         <button onClick={logout} className="nav-logout-btn">
                           <LogOut size={16} /> Logout
                         </button>
