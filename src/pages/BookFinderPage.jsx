@@ -4,6 +4,107 @@ import { BookOpen, Search, MapPin, ArrowLeft, Compass, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { booksData } from '../data/booksData';
 
+// Fuzzy search utility function
+const fuzzyMatch = (searchTerm, text) => {
+  if (!searchTerm || !text) return 0;
+  
+  const search = searchTerm.toLowerCase().trim();
+  const target = text.toLowerCase().trim();
+  
+  // Exact match gets highest score
+  if (target === search) return 1;
+  
+  // Contains exact substring
+  if (target.includes(search)) return 0.9;
+  
+  // Handle empty search
+  if (search.length === 0) return 0;
+  
+  // Calculate similarity based on character matching
+  let score = 0;
+  const searchLen = search.length;
+  const targetLen = target.length;
+  
+  // Simple character-by-character matching with tolerance for transpositions
+  let matches = 0;
+  let i = 0, j = 0;
+  
+  while (i < searchLen && j < targetLen) {
+    if (search[i] === target[j]) {
+      matches++;
+      i++;
+      j++;
+    } else {
+      // Allow for single character transposition or missing character
+      if (i + 1 < searchLen && search[i + 1] === target[j]) {
+        // Transposition case: "ab" vs "ba"
+        matches += 0.5;
+        i += 2;
+        j++;
+      } else if (j + 1 < targetLen && search[i] === target[j + 1]) {
+        // Transposition case: "ba" vs "ab"
+        matches += 0.5;
+        i++;
+        j += 2;
+      } else {
+        // Try skipping a character in either string (handles missing/extra chars)
+        const skipSearchMatch = (i + 1 < searchLen && search[i + 1] === target[j]) ? 1 : 0;
+        const skipTargetMatch = (j + 1 < targetLen && search[i] === target[j + 1]) ? 1 : 0;
+        
+        if (skipSearchMatch > skipTargetMatch) {
+          i++;
+        } else if (skipTargetMatch > skipSearchMatch) {
+          j++;
+        } else {
+          i++;
+          j++;
+        }
+      }
+    }
+  }
+  
+  // Add remaining matches if one string is exhausted
+  while (i < searchLen) {
+    // Look for remaining characters in target
+    if (target.indexOf(search[i]) !== -1) {
+      matches += 0.5;
+    }
+    i++;
+  }
+  
+  while (j < targetLen) {
+    // Look for remaining characters in search
+    if (search.indexOf(target[j]) !== -1) {
+      matches += 0.5;
+    }
+    j++;
+  }
+  
+  // Calculate base score from character matches
+  const baseScore = matches / Math.max(searchLen, targetLen);
+  
+  // Boost score for word order flexibility
+  const searchWords = search.split(/\s+/);
+  const targetWords = target.split(/\s+/);
+  
+  let wordMatches = 0;
+  for (const searchWord of searchWords) {
+    if (searchWord.length > 2) { // Only consider meaningful words
+      for (const targetWord of targetWords) {
+        if (targetWord.includes(searchWord) || searchWord.includes(targetWord)) {
+          wordMatches++;
+          break;
+        }
+      }
+    }
+  }
+  
+  const wordScore = searchWords.length > 0 ? wordMatches / searchWords.length : 0;
+  
+  // Combine scores with weighting
+  return Math.max(baseScore * 0.6 + wordScore * 0.4, baseScore);
+};
+
 // Dynamic hand-drawn book cover generator
 const BookCover = ({ title, author, color }) => {
   return (
@@ -99,6 +200,7 @@ const BookFinderPage = () => {
   const [debouncedQuery, setDebouncedQuery] = useState(queryParam);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isLoading, setIsLoading] = useState(false);
+  const [sortBy, setSortBy] = useState("relevance");
 
   // Synchronize local input state with URL search param
   useEffect(() => {
@@ -160,20 +262,70 @@ const BookFinderPage = () => {
   // Filter books matching search query and category with useMemo for performance
   const filteredBooks = useMemo(() => {
     const query = debouncedQuery.toLowerCase().trim();
-    return booksData.filter(book => {
-      const matchesCategory = selectedCategory === 'All' || book.category.toLowerCase() === selectedCategory.toLowerCase();
+    
+    if (!query) {
+      let books = selectedCategory === 'All' 
+        ? booksData 
+        : booksData.filter(book => book.category.toLowerCase() === selectedCategory.toLowerCase());
       
-      if (!query) return matchesCategory;
+      // Apply sorting when no search query
+      return applySorting(books);
+    }
 
-      const matchesSearch = 
-        book.title.toLowerCase().includes(query) ||
-        book.author.toLowerCase().includes(query) ||
-        book.category.toLowerCase().includes(query) ||
-        book.stallName.toLowerCase().includes(query);
+    let books = booksData
+      .filter(book => 
+        selectedCategory === 'All' || book.category.toLowerCase() === selectedCategory.toLowerCase()
+      )
+      .map(book => {
+        // Calculate relevance score for each field
+        const titleScore = fuzzyMatch(query, book.title);
+        const authorScore = fuzzyMatch(query, book.author);
+        const descriptionScore = fuzzyMatch(query, book.description);
+        const stallNameScore = fuzzyMatch(query, book.stallName);
+        
+        // Use the highest score from any field
+        const maxScore = Math.max(titleScore, authorScore, descriptionScore, stallNameScore);
+        
+        // Only include books with a meaningful match score
+        return maxScore > 0.3 ? { ...book, relevanceScore: maxScore } : null;
+      })
+      .filter(Boolean); // Remove null values
       
-      return matchesCategory && matchesSearch;
+    // Apply sorting based on selected option
+    return applySorting(books);
+  }, [debouncedQuery, selectedCategory, booksData, sortBy]);
+
+  // Apply sorting based on selected option
+  function applySorting(books) {
+    return [...books].sort((a, b) => {
+      switch (sortBy) {
+        case 'price-low-high':
+          return parsePrice(a.price) - parsePrice(b.price);
+        case 'price-high-low':
+          return parsePrice(b.price) - parsePrice(a.price);
+        case 'title-asc':
+          return a.title.localeCompare(b.title);
+        case 'relevance':
+        default:
+          // Sort by relevance score (highest first)
+          return (b.relevanceScore || 0) - (a.relevanceScore || 0);
+      }
     });
-  }, [debouncedQuery, selectedCategory]);
+  }
+
+  // Helper function to parse price strings (e.g., '₹899' -> 899)
+  function parsePrice(priceStr) {
+    return parseFloat(priceStr.replace(/[^\d.-]/g, '')) || 0;
+  }
+
+  // Sort options for the dropdown
+  const sortOptions = [
+    { value: 'relevance', label: 'Relevance' },
+    { value: 'price-low-high', label: 'Price Low → High' },
+    { value: 'price-high-low', label: 'Price High → Low' },
+    { value: 'title-asc', label: 'Alphabetical (A → Z)' },
+    { value: 'nearest-stall', label: 'Nearest Stall' }
+  ];
 
   return (
     <div className="finder-wrapper" style={styles.pageWrapper}>
@@ -210,6 +362,49 @@ const BookFinderPage = () => {
               Find Book
             </button>
           </form>
+        </div>
+
+        {/* Sort Dropdown */}
+        <div className="premium-card wobbly-border" style={{ 
+          ...styles.searchBarCard, 
+          marginBottom: '24px' 
+        }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '12px', 
+            padding: '16px 20px' 
+          }}>
+            <Compass size={20} style={{ color: '#5C4033', opacity: 0.7 }} />
+            <span style={{ 
+              fontFamily: 'var(--font-body)', 
+              fontSize: '0.95rem', 
+              color: 'var(--color-text-ink)', 
+              fontWeight: '500'
+            }}>Sort by:</span>
+            <select 
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              style={{ 
+                padding: '8px 12px', 
+                borderRadius: 'var(--radius-pill)', 
+                border: '1.5px solid #5C4033', 
+                backgroundColor: '#FFFDF9', 
+                color: 'var(--color-text-ink)', 
+                fontFamily: 'var(--font-body)', 
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                appearance: 'none',
+                WebkitAppearance: 'none'
+              }}
+            >
+              {sortOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Categories Navigation Row */}
