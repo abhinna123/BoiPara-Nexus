@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Search, MapPin, ArrowLeft, Compass, X, Heart, Clock, Sparkles } from 'lucide-react';
+import { BookOpen, Search, MapPin, ArrowLeft, Compass, X, Heart, Clock, Sparkles, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { booksData } from '../data/booksData';
 import { useAuth } from '../context/AuthContext';
@@ -479,68 +479,45 @@ const BookFinderPage = () => {
         </div>
 
         {/* Search & Filter Bar */}
-        <div className="premium-card wobbly-border finder-search-card" style={styles.searchBarCard}>
-          <form onSubmit={handleSearchSubmit} className="finder-search-form" style={styles.searchForm}>
-            <Search color="#5C4033" size={22} style={{ opacity: 0.6 }} />
+        <div className="premium-card search-bar-glow hover-lift search-container" style={styles.searchContainer}>
+          <Search color="var(--color-text-ink)" size={24} style={{ opacity: 0.5 }} />
+          <form onSubmit={handleSearchSubmit} style={{ display: 'flex', flex: 1, alignItems: 'center', gap: '14px' }}>
             <input 
               type="text" 
-              placeholder="Search by book title, author, category, or book stall..." 
+              placeholder="Search by book title, author, or stall..." 
+              className="search-input"
               style={styles.searchInput}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
             {searchQuery && (
               <button type="button" onClick={clearSearch} style={styles.clearBtn}>
-                <X size={18} />
+                <X size={20} />
               </button>
             )}
-            <button type="submit" className="finder-search-btn" style={styles.searchBtn}>
-              Find Book
+            <button type="submit" className="search-button" style={styles.searchButton}>
+              Find Book <ArrowRight size={18} />
             </button>
           </form>
         </div>
 
-        {/* Sort Dropdown */}
-        <div className="premium-card wobbly-border" style={{ 
-          ...styles.searchBarCard, 
-          marginBottom: '24px' 
-        }}>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '12px', 
-            padding: '16px 20px' 
-          }}>
-            <Compass size={20} style={{ color: '#5C4033', opacity: 0.7 }} />
-            <span style={{ 
-              fontFamily: 'var(--font-body)', 
-              fontSize: '0.95rem', 
-              color: 'var(--color-text-ink)', 
-              fontWeight: '500'
-            }}>Sort by:</span>
-            <select 
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              style={{ 
-                padding: '8px 12px', 
-                borderRadius: 'var(--radius-pill)', 
-                border: '1.5px solid #5C4033', 
-                backgroundColor: '#FFFDF9', 
-                color: 'var(--color-text-ink)', 
-                fontFamily: 'var(--font-body)', 
-                fontSize: '0.9rem',
-                cursor: 'pointer',
-                appearance: 'none',
-                WebkitAppearance: 'none'
-              }}
-            >
-              {sortOptions.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+        {/* Sort Controls (Compact Row) */}
+        <div style={styles.sortRow}>
+          <div style={styles.sortBadge}>
+            <Compass size={18} color="var(--color-primary)" />
+            <span>Sort Results</span>
           </div>
+          <select 
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            style={styles.sortSelect}
+          >
+            {sortOptions.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Categories Navigation Row */}
@@ -755,21 +732,19 @@ const styles = {
     maxWidth: '650px',
     margin: '0 auto',
   },
-  searchBarCard: {
-    width: '100%',
-    maxWidth: '850px',
-    backgroundColor: '#FFFDF9',
-    border: '2px solid #5C4033',
-    padding: '8px 12px',
-    borderRadius: '255px 15px 225px 15px / 15px 225px 15px 255px',
-    boxShadow: '3px 5px 0px rgba(92, 64, 51, 0.15)',
-    marginBottom: '32px',
-  },
-  searchForm: {
+  searchContainer: {
     display: 'flex',
     alignItems: 'center',
-    gap: '14px',
+    padding: '8px 8px 8px 24px',
     width: '100%',
+    maxWidth: '850px',
+    gap: '16px',
+    border: '1px solid rgba(44, 36, 27, 0.08)',
+    marginBottom: '40px',
+    position: 'relative',
+    overflow: 'visible',
+    zIndex: 100,
+    backgroundColor: '#FFFDF9',
   },
   searchInput: {
     flex: 1,
@@ -784,7 +759,7 @@ const styles = {
     fontSize: '0.9rem',
     color: 'var(--color-text-ink)',
     opacity: 0.6,
-    padding: '8px 12px',
+    padding: '8px',
     fontWeight: '500',
     background: 'none',
     border: 'none',
@@ -793,16 +768,56 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  searchBtn: {
+  searchButton: {
     backgroundColor: 'var(--color-primary)',
-    color: '#FFFDF9',
-    padding: '12px 28px',
+    color: '#fff',
+    padding: '14px 28px',
     borderRadius: 'var(--radius-pill)',
     fontSize: '1rem',
     fontWeight: '600',
-    transition: 'background-color 0.2s, transform 0.1s',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    transition: 'background 0.2s',
     border: 'none',
     cursor: 'pointer',
+  },
+  sortRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '12px',
+    marginBottom: '40px',
+    width: '100%',
+  },
+  sortBadge: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '8px 16px',
+    backgroundColor: 'rgba(140, 58, 58, 0.05)',
+    borderRadius: 'var(--radius-pill)',
+    fontSize: '0.85rem',
+    fontWeight: '700',
+    color: 'var(--color-primary)',
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
+    border: '1px solid rgba(140, 58, 58, 0.1)',
+  },
+  sortSelect: {
+    padding: '8px 24px 8px 16px',
+    borderRadius: 'var(--radius-pill)',
+    border: '1.5px solid #5C4033',
+    backgroundColor: '#FFFDF9',
+    color: 'var(--color-text-ink)',
+    fontFamily: 'var(--font-body)',
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    appearance: 'none',
+    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235C4033' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-9'/%3E%3C/svg%3E")`,
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'right 8px center',
   },
   categoryRow: {
     display: 'flex',
