@@ -19,35 +19,40 @@ const LandingPage = () => {
   const [isFocused, setIsFocused] = useState(false);
   const navigate = useNavigate();
 
-  // Detect which node to highlight based on search query and filter books
+  // Detect which node to highlight based on search query and filter books with debouncing
   useEffect(() => {
-    if (searchQuery.trim().length > 1) {
-      const query = searchQuery.toLowerCase();
-      
-      // Node highlighting logic
-      const match = miniNodes.find(node => 
-        node.title.toLowerCase().includes(query) || 
-        node.keywords.some(k => query.includes(k))
-      );
-      setHighlightedNode(match ? match.id : null);
+    const timer = setTimeout(() => {
+      if (searchQuery.trim().length > 1) {
+        const query = searchQuery.toLowerCase().trim();
+        
+        // Node highlighting logic
+        const match = miniNodes.find(node => 
+          node.title.toLowerCase().includes(query) || 
+          node.keywords.some(k => query.includes(k))
+        );
+        setHighlightedNode(match ? match.id : null);
 
-      // Book filtering logic
-      const filtered = booksData.filter(book => 
-        book.title.toLowerCase().includes(query) ||
-        book.author.toLowerCase().includes(query) ||
-        book.category.toLowerCase().includes(query)
-      ).slice(0, 5);
-      setSearchResults(filtered);
-    } else {
-      setHighlightedNode(null);
-      setSearchResults([]);
-    }
+        // Book filtering logic for suggestions
+        const filtered = booksData.filter(book => 
+          book.title.toLowerCase().includes(query) ||
+          book.author.toLowerCase().includes(query) ||
+          book.category.toLowerCase().includes(query)
+        ).slice(0, 5);
+        
+        setSearchResults(filtered);
+      } else {
+        setHighlightedNode(null);
+        setSearchResults([]);
+      }
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timer);
   }, [searchQuery]);
 
   const handleSearch = (term) => {
-    const finalTerm = term || searchQuery;
-    if (finalTerm.trim()) {
-      navigate(`/finder?q=${encodeURIComponent(finalTerm.trim())}`);
+    const finalTerm = (typeof term === 'string' ? term : searchQuery).trim();
+    if (finalTerm) {
+      navigate(`/finder?q=${encodeURIComponent(finalTerm)}`);
     } else {
       navigate('/finder');
     }
@@ -116,11 +121,11 @@ const LandingPage = () => {
                 exit={{ opacity: 0, y: -10, scale: 0.98 }}
                 transition={{ duration: 0.2 }}
                 style={styles.resultsDropdown}
-                className="premium-card wobbly-border"
+                className="premium-card"
               >
                 {searchResults.length > 0 ? (
                   <>
-                    <div style={styles.dropdownHeader}>Suggested Books</div>
+                    <div style={styles.dropdownHeader}>Book Suggestions</div>
                     {searchResults.map((book) => (
                       <div 
                         key={book.id} 
@@ -146,8 +151,8 @@ const LandingPage = () => {
                   </>
                 ) : (
                   <div style={styles.noResults}>
-                    <p style={styles.noResultsText}>No heritage books found for "{searchQuery}"</p>
-                    <p style={styles.noResultsSub}>Try searching for 'Tagore', 'Physics', or 'Algorithms'</p>
+                    <p style={styles.noResultsText}>No books found matching "{searchQuery}"</p>
+                    <p style={styles.noResultsSub}>Try searching for titles like 'Tagore' or 'Physics'</p>
                   </div>
                 )}
               </motion.div>
@@ -344,6 +349,7 @@ const styles = {
     marginBottom: '60px',
     position: 'relative',
     overflow: 'visible', // Essential for dropdown visibility
+    zIndex: 1000,
   },
   searchInput: {
     flex: 1,
@@ -373,7 +379,7 @@ const styles = {
     background: '#FFFDF9',
     border: '2px solid #5C4033',
     boxShadow: '0 15px 35px rgba(92, 64, 51, 0.15), 4px 6px 0px rgba(92, 64, 51, 0.2)',
-    zIndex: 100,
+    zIndex: 1001,
     textAlign: 'left',
     padding: '8px 0',
   },
@@ -457,6 +463,7 @@ const styles = {
     boxShadow: '3px 5px 0px rgba(92, 64, 51, 0.15)',
     opacity: 1,
     filter: 'none',
+    zIndex: 1,
   },
   miniMapHeader: {
     display: 'flex',

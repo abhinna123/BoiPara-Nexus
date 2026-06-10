@@ -54,15 +54,24 @@ const StoriesPage = () => {
     e.target.src = '/bookshelf.png';
   };
 
-  // Disable scroll when modal is open
+  // Disable scroll when modal is open and handle Escape key
   useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setSelectedStory(null);
+      }
+    };
+
     if (selectedStory) {
       document.body.style.overflow = 'hidden';
+      window.addEventListener('keydown', handleKeyDown);
     } else {
       document.body.style.overflow = 'unset';
     }
+    
     return () => {
       document.body.style.overflow = 'unset';
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [selectedStory]);
 
@@ -136,23 +145,26 @@ const StoriesPage = () => {
       {/* Story Modal */}
       <AnimatePresence>
         {selectedStory && (
-          <div className="modal-overlay">
+          <motion.div 
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedStory(null)}
+          >
+            <div className="modal-backdrop" />
             <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="modal-backdrop"
-              onClick={() => setSelectedStory(null)}
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              exit={{ opacity: 0, scale: 0.95, y: 30 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               className="story-modal premium-card"
+              onClick={(e) => e.stopPropagation()}
             >
               <button 
                 className="modal-close-btn"
                 onClick={() => setSelectedStory(null)}
+                aria-label="Close modal"
               >
                 <X size={24} />
               </button>
@@ -185,7 +197,7 @@ const StoriesPage = () => {
                 </div>
               </div>
             </motion.div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
 

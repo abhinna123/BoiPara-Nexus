@@ -2,137 +2,181 @@ import { useState, useEffect } from 'react';
 import { BookOpen, User, Tag, Phone, Send, Camera, Edit2, Trash2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-
-const ADDA_STORAGE_KEY = 'boipara_adda_books';
-
-// Initial default books to show if storage is empty
-const defaultBooks = [
-  { id: 1, name: 'Introduction to Algorithms', author: 'CLRS', price: '₹450', contact: '9876543210', image: null, isUserAdded: false, userId: 'system' },
-  { id: 2, name: 'The God of Small Things', author: 'Arundhati Roy', price: '₹200', contact: '8765432109', image: null, isUserAdded: false, userId: 'system' },
-  { id: 3, name: 'A Brief History of Time', author: 'Stephen Hawking', price: '₹300', contact: '7654321098', image: null, isUserAdded: false, userId: 'system' },
-];
+import { 
+  collection, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  onSnapshot, 
+  query, 
+  orderBy, 
+  serverTimestamp, 
+  doc 
+} from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../firebase';
 
 const AddaPage = () => {
   const { user } = useAuth();
-  // Initialize state from localStorage or defaults
-  const [books, setBooks] = useState(() => {
-    const saved = localStorage.getItem(ADDA_STORAGE_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      // Ensure all books have the correct isUserAdded flag
-      // Default books should always be false, others should be true
-      const defaultIds = defaultBooks.map(b => b.id);
-      return parsed.map(book => ({
-        ...book,
-        isUserAdded: defaultIds.includes(book.id) ? false : true
-      }));
-    }
-    return defaultBooks;
-  });
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
     author: '',
     price: '',
     contact: '',
-    image: null
+    image: null,
+    imageFile: null
   });
 
   const [editingId, setEditingId] = useState(null);
 
-  // Sync with localStorage whenever books state changes
+  // Real-time sync with Firestore
   useEffect(() => {
-    localStorage.setItem(ADDA_STORAGE_KEY, JSON.stringify(books));
-  }, [books]);
+    const q = query(collection(db, 'adda_listings'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const listings = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        isUserAdded: true // In Firestore context, all are user-added
+      }));
+      setBooks(listings);
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching listings:", error);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 1024 * 1024) { // 1MB limit for localStorage safety
-        alert('Image size should be less than 1MB');
+      if (file.size > 2 * 1024 * 1024) { // 2MB limit for Storage
+        alert('Image size should be less than 2MB');
         return;
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, image: reader.result }));
-      };
-      reader.readAsDataURL(file);
+      
+      // Store the file object for uploading on submit
+      setFormData(prev => ({ 
+        ...prev, 
+        imageFile: file,
+        image: URL.createObjectURL(file) // For local preview
+      }));
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (formData.name && formData.author && formData.price && formData.contact) {
-      if (editingId) {
-        // Update existing listing
-        setBooks(prev => prev.map(book => 
-          book.id === editingId ? { ...formData, id: editingId, isUserAdded: true, userId: book.userId } : book
-        ));
-        setEditingId(null);
-      } else {
-        // Prevent duplicate entries (case-insensitive check for name and author)
-        const isDuplicate = books.some(book => 
-          book.name.toLowerCase() === formData.name.toLowerCase() && 
-          book.author.toLowerCase() === formData.author.toLowerCase()
-        );
+  const uploadImage = async (file) => {
+    if (!file) return null;
+    const storageRef = ref(storage, `adda_images/${user.uid}/${Date.now()}_${file.name}`);
+    const snapshot = await uploadBytes(storageRef, file);
+    return await getDownloadURL(snapshot.ref);
+  };
 
-        if (isDuplicate) {
-          alert('This book listing already exists!');
-          return;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!user) {
+      alert('Please login to post a listing');
+      return;
+    }
+
+    if (formData.name && formData.author && formData.price && formData.contact) {
+      setIsUploading(true);
+      try {
+        let imageUrl = formData.image;
+        
+        // Upload new image if a new file was selected
+        if (formData.imageFile) {
+          imageUrl = await uploadImage(formData.imageFile);
         }
 
-        const newBook = {
-          id: Date.now(),
-          ...formData,
-          isUserAdded: true,
-          userId: user?.uid || 'anonymous'
+        const listingData = {
+          name: formData.name,
+          author: formData.author,
+          price: formData.price,
+          contact: formData.contact,
+          image: imageUrl,
+          userId: user.uid,
+          userName: user.displayName || 'Student',
+          userEmail: user.email,
+          updatedAt: serverTimestamp()
         };
-        setBooks([newBook, ...books]);
+
+        if (editingId) {
+          // Update existing listing - exclude user info to prevent changes
+          const { userId, userName, userEmail, ...updateData } = listingData;
+          const docRef = doc(db, 'adda_listings', editingId);
+          await updateDoc(docRef, updateData);
+          setEditingId(null);
+        } else {
+          // Create new listing
+          await addDoc(collection(db, 'adda_listings'), {
+            ...listingData,
+            createdAt: serverTimestamp()
+          });
+        }
+        
+        setFormData({ name: '', author: '', price: '', contact: '', image: null, imageFile: null });
+        const fileInput = document.getElementById('book-image-upload');
+        if (fileInput) fileInput.value = '';
+      } catch (error) {
+        console.error("Error saving listing:", error);
+        alert("Failed to save listing. Please try again.");
+      } finally {
+        setIsUploading(false);
       }
-      
-      setFormData({ name: '', author: '', price: '', contact: '', image: null });
-      // Reset file input manually
-      const fileInput = document.getElementById('book-image-upload');
-      if (fileInput) fileInput.value = '';
     }
   };
 
   const handleEdit = (book) => {
-    if (!book.isUserAdded || (book.userId !== user?.uid && book.userId !== 'anonymous')) return;
+    if (book.userId !== user?.uid) return;
     setFormData({
       name: book.name,
       author: book.author,
       price: book.price,
       contact: book.contact,
-      image: book.image
+      image: book.image,
+      imageFile: null
     });
     setEditingId(book.id);
     window.scrollTo({ top: 200, behavior: 'smooth' });
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     const book = books.find(b => b.id === id);
-    if (!book || !book.isUserAdded || (book.userId !== user?.uid && book.userId !== 'anonymous')) return;
+    if (!book || book.userId !== user?.uid) return;
     
     if (window.confirm('Are you sure you want to delete this listing?')) {
-      setBooks(prev => prev.filter(book => book.id !== id));
-      if (editingId === id) {
-        setEditingId(null);
-        setFormData({ name: '', author: '', price: '', contact: '', image: null });
+      try {
+        await deleteDoc(doc(db, 'adda_listings', id));
+        if (editingId === id) {
+          setEditingId(null);
+          setFormData({ name: '', author: '', price: '', contact: '', image: null, imageFile: null });
+        }
+      } catch (error) {
+        console.error("Error deleting listing:", error);
       }
     }
   };
 
   const cancelEdit = () => {
     setEditingId(null);
-    setFormData({ name: '', author: '', price: '', contact: '', image: null });
+    setFormData({ name: '', author: '', price: '', contact: '', image: null, imageFile: null });
     const fileInput = document.getElementById('book-image-upload');
     if (fileInput) fileInput.value = '';
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === 'contact') {
+      const digitsOnly = value.replace(/\D/g, '');
+      setFormData(prev => ({ ...prev, [name]: digitsOnly }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   return (
@@ -160,8 +204,17 @@ const AddaPage = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
           className="premium-card adda-form-card" 
-          style={styles.formCard}
+          style={{
+            ...styles.formCard,
+            opacity: !user ? 0.7 : 1,
+            pointerEvents: isUploading ? 'none' : 'auto'
+          }}
         >
+          {!user && (
+            <div style={styles.loginNotice}>
+              Please login to post or manage your listings.
+            </div>
+          )}
           <h2 style={styles.formTitle}>{editingId ? 'Edit Listing' : 'List a Book'}</h2>
           <form onSubmit={handleSubmit} style={styles.form}>
             <div className="adda-input-group" style={styles.inputGroup}>
@@ -175,6 +228,7 @@ const AddaPage = () => {
                   onChange={handleChange}
                   style={styles.input}
                   required
+                  disabled={!user}
                 />
               </div>
               <div className="search-bar-glow adda-input-wrapper" style={styles.inputWrapper}>
@@ -187,6 +241,7 @@ const AddaPage = () => {
                   onChange={handleChange}
                   style={styles.input}
                   required
+                  disabled={!user}
                 />
               </div>
             </div>
@@ -201,25 +256,42 @@ const AddaPage = () => {
                   onChange={handleChange}
                   style={styles.input}
                   required
+                  disabled={!user}
                 />
               </div>
-              <div className="search-bar-glow adda-input-wrapper" style={styles.inputWrapper}>
-                <Phone size={18} style={styles.inputIcon} />
-                <input
-                  type="text"
-                  name="contact"
-                  placeholder="Contact Number"
-                  value={formData.contact}
-                  onChange={handleChange}
-                  style={styles.input}
-                  required
-                />
+              <div style={{ flex: 1, minWidth: '280px' }}>
+                <div className="search-bar-glow adda-input-wrapper" style={styles.inputWrapper}>
+                  <Phone size={18} style={styles.inputIcon} />
+                  <input
+                    type="tel"
+                    name="contact"
+                    placeholder="Contact Number"
+                    value={formData.contact}
+                    onChange={handleChange}
+                    style={styles.input}
+                    required
+                    maxLength={10}
+                    disabled={!user}
+                  />
+                </div>
+                {formData.contact && formData.contact.length !== 10 && (
+                  <p style={{ color: '#8C3A3A', fontSize: '0.8rem', marginTop: '4px', marginLeft: '4px' }}>
+                    Phone number must contain exactly 10 digits
+                  </p>
+                )}
               </div>
             </div>
             
             {/* Image Upload Field */}
             <div className="adda-input-group" style={styles.uploadGroup}>
-              <label htmlFor="book-image-upload" className="search-bar-glow adda-input-wrapper" style={styles.uploadLabel}>
+              <label 
+                htmlFor="book-image-upload" 
+                className="search-bar-glow adda-input-wrapper" 
+                style={{
+                  ...styles.uploadLabel,
+                  cursor: !user ? 'not-allowed' : 'pointer'
+                }}
+              >
                 <Camera size={20} style={styles.inputIcon} />
                 <span>{formData.image ? 'Image Selected' : 'Upload Book Photo (Optional)'}</span>
                 <input
@@ -228,6 +300,7 @@ const AddaPage = () => {
                   accept="image/*"
                   onChange={handleImageChange}
                   style={{ display: 'none' }}
+                  disabled={!user}
                 />
               </label>
               {formData.image && (
@@ -238,8 +311,18 @@ const AddaPage = () => {
             </div>
 
             <div style={styles.formActions}>
-              <button type="submit" className="hover-lift adda-submit-btn" style={styles.submitButton}>
-                {editingId ? 'Update Listing' : 'Post to Adda'} {editingId ? <Edit2 size={18} /> : <Send size={18} />}
+              <button 
+                type="submit" 
+                className="hover-lift adda-submit-btn" 
+                style={{
+                  ...styles.submitButton,
+                  opacity: (formData.contact.length !== 10 || !user || isUploading) ? 0.6 : 1,
+                  cursor: (formData.contact.length !== 10 || !user || isUploading) ? 'not-allowed' : 'pointer'
+                }}
+                disabled={formData.contact.length !== 10 || !user || isUploading}
+              >
+                {isUploading ? 'Uploading...' : (editingId ? 'Update Listing' : 'Post to Adda')} 
+                {!isUploading && (editingId ? <Edit2 size={18} /> : <Send size={18} />)}
               </button>
               {editingId && (
                 <button type="button" onClick={cancelEdit} className="hover-lift" style={styles.cancelButton}>
@@ -253,63 +336,68 @@ const AddaPage = () => {
         {/* Book List Section */}
         <div style={styles.listSection}>
           <h2 style={styles.listTitle}>Recent Listings</h2>
-          <motion.div layout className="adda-grid" style={styles.grid}>
-            <AnimatePresence mode="popLayout">
-              {books.map((book) => {
-                const isOwner = book.isUserAdded && (book.userId === user?.uid || (book.userId === 'anonymous' && !user));
-                
-                return (
-                  <motion.div
-                    key={book.id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ 
-                      duration: 0.3,
-                      ease: "easeInOut"
-                    }}
-                    className="premium-card hover-lift"
-                    style={styles.bookCard}
-                  >
-                    {book.image && (
-                      <div style={styles.cardImageContainer}>
-                        <img src={book.image} alt={book.name} style={styles.cardImage} />
-                      </div>
-                    )}
-                    <div style={styles.cardHeader}>
-                      <h3 style={styles.bookName}>{book.name}</h3>
-                      {isOwner && (
-                        <div style={styles.cardActions}>
-                          <button onClick={() => handleEdit(book)} title="Edit Listing" style={styles.actionIcon}>
-                            <Edit2 size={16} />
-                          </button>
-                          <button onClick={() => handleDelete(book.id)} title="Delete Listing" style={{ ...styles.actionIcon, color: '#8C3A3A' }}>
-                            <Trash2 size={16} />
-                          </button>
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '40px' }}>Loading listings...</div>
+          ) : (
+            <motion.div layout className="adda-grid" style={styles.grid}>
+              <AnimatePresence mode="popLayout">
+                {books.map((book) => {
+                  const isOwner = user && book.userId === user.uid;
+                  
+                  return (
+                    <motion.div
+                      key={book.id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ 
+                        duration: 0.3,
+                        ease: "easeInOut"
+                      }}
+                      className="premium-card hover-lift"
+                      style={styles.bookCard}
+                    >
+                      {book.image && (
+                        <div style={styles.cardImageContainer}>
+                          <img src={book.image} alt={book.name} style={styles.cardImage} />
                         </div>
                       )}
-                    </div>
-                    <div style={styles.cardBody}>
-                      <p style={styles.authorName}>by {book.author}</p>
-                      <div style={styles.cardMeta}>
-                        <span style={styles.priceTag}>{book.price}</span>
-                        <div style={styles.contactInfo}>
-                          <Phone size={14} />
-                          <span>{book.contact}</span>
-                        </div>
+                      <div style={styles.cardHeader}>
+                        <h3 style={styles.bookName}>{book.name}</h3>
+                        {isOwner && (
+                          <div style={styles.cardActions}>
+                            <button onClick={() => handleEdit(book)} title="Edit Listing" style={styles.actionIcon}>
+                              <Edit2 size={16} />
+                            </button>
+                            <button onClick={() => handleDelete(book.id)} title="Delete Listing" style={{ ...styles.actionIcon, color: '#8C3A3A' }}>
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                    <div style={styles.cardFooter}>
-                      <button style={styles.contactButton}>
-                        Contact Seller
-                      </button>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </motion.div>
+                      <div style={styles.cardBody}>
+                        <p style={styles.authorName}>by {book.author}</p>
+                        <div style={styles.cardMeta}>
+                          <span style={styles.priceTag}>{book.price}</span>
+                          <div style={styles.contactInfo}>
+                            <Phone size={14} />
+                            <span>{book.contact}</span>
+                          </div>
+                        </div>
+                        <p style={styles.sellerInfo}>Listed by: {book.userName}</p>
+                      </div>
+                      <div style={styles.cardFooter}>
+                        <button style={styles.contactButton} onClick={() => window.location.href = `tel:${book.contact}`}>
+                          Contact Seller
+                        </button>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            </motion.div>
+          )}
         </div>
       </div>
     </div>
@@ -363,6 +451,16 @@ const styles = {
     margin: '0 auto 80px',
     padding: '40px',
     border: '1px solid rgba(140, 58, 58, 0.1)',
+    position: 'relative',
+  },
+  loginNotice: {
+    position: 'absolute',
+    top: '20px',
+    right: '40px',
+    fontSize: '0.9rem',
+    color: 'var(--color-primary)',
+    fontWeight: '500',
+    fontStyle: 'italic',
   },
   formTitle: {
     fontSize: '1.8rem',
@@ -396,7 +494,6 @@ const styles = {
     background: '#fff',
     borderRadius: 'var(--radius-md)',
     border: '1px solid rgba(44, 36, 27, 0.1)',
-    cursor: 'pointer',
     color: 'var(--color-text-ink)',
     opacity: 0.8,
     transition: 'all 0.3s ease',
@@ -460,7 +557,6 @@ const styles = {
     gap: '10px',
     boxShadow: '0 4px 15px rgba(140, 58, 58, 0.2)',
     transition: 'transform 0.2s, background 0.2s',
-    cursor: 'pointer',
   },
   cancelButton: {
     flex: 1,
@@ -584,6 +680,12 @@ const styles = {
     fontSize: '0.9rem',
     color: 'var(--color-text-ink)',
     opacity: 0.8,
+  },
+  sellerInfo: {
+    fontSize: '0.85rem',
+    color: 'var(--color-text-ink)',
+    opacity: 0.6,
+    marginTop: '4px',
   },
   cardFooter: {
     marginTop: 'auto',

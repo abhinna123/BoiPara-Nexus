@@ -12,6 +12,25 @@ const LoginModal = ({ isOpen, onClose }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const getFriendlyErrorMessage = (errorCode) => {
+    switch (errorCode) {
+      case 'auth/email-already-in-use':
+        return 'This email is already registered. Please sign in instead.';
+      case 'auth/invalid-email':
+        return 'Please enter a valid email address.';
+      case 'auth/weak-password':
+        return 'Password must be at least 6 characters.';
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+      case 'auth/invalid-credential':
+        return 'Invalid email or password. Please try again.';
+      case 'auth/popup-closed-by-user':
+        return 'Sign-in cancelled.';
+      default:
+        return 'Something went wrong. Please try again.';
+    }
+  };
+
   const handleAuth = async (e) => {
     e.preventDefault();
     setError('');
@@ -26,19 +45,23 @@ const LoginModal = ({ isOpen, onClose }) => {
       }
       onClose();
     } catch (err) {
-      setError(err.message.replace('Firebase: ', ''));
+      setError(getFriendlyErrorMessage(err.code));
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
+    console.log('LOGIN_BUTTON_CLICKED');
     setError('');
+    setLoading(true);
     try {
       await googleSignIn();
       onClose();
     } catch (err) {
-      setError(err.message.replace('Firebase: ', ''));
+      setError(getFriendlyErrorMessage(err.code));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -80,7 +103,10 @@ const LoginModal = ({ isOpen, onClose }) => {
                       placeholder="Full Name"
                       style={styles.input}
                       value={displayName}
-                      onChange={(e) => setDisplayName(e.target.value)}
+                      onChange={(e) => {
+                        setDisplayName(e.target.value);
+                        if (error) setError('');
+                      }}
                       required
                     />
                   </div>
@@ -93,7 +119,10 @@ const LoginModal = ({ isOpen, onClose }) => {
                     placeholder="Email Address"
                     style={styles.input}
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (error) setError('');
+                    }}
                     required
                   />
                 </div>
@@ -105,13 +134,21 @@ const LoginModal = ({ isOpen, onClose }) => {
                     placeholder="Password"
                     style={styles.input}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      if (error) setError('');
+                    }}
                     required
                   />
                 </div>
 
                 <button type="submit" className="hover-lift" style={styles.submitButton} disabled={loading}>
-                  {loading ? <Loader2 className="animate-spin" size={20} /> : (isSignUp ? 'Sign Up' : 'Sign In')}
+                  {loading ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Loader2 className="animate-spin" size={20} />
+                      <span>{isSignUp ? 'Creating account...' : 'Signing in...'}</span>
+                    </div>
+                  ) : (isSignUp ? 'Sign Up' : 'Sign In')}
                 </button>
               </form>
 
@@ -122,17 +159,21 @@ const LoginModal = ({ isOpen, onClose }) => {
               <div style={styles.buttonGroup}>
                 <button 
                   onClick={handleGoogleSignIn}
+                  disabled={loading}
                   className="hover-lift" 
-                  style={{ ...styles.authButton, borderColor: '#4285F420' }}
+                  style={{ ...styles.authButton, borderColor: '#4285F420', opacity: loading ? 0.7 : 1 }}
                 >
                   <Globe size={20} color="#4285F4" />
-                  <span>Continue with Google</span>
+                  <span>{loading ? 'Connecting...' : 'Continue with Google'}</span>
                 </button>
               </div>
 
               <div style={styles.footer}>
                 <button 
-                  onClick={() => setIsSignUp(!isSignUp)}
+                  onClick={() => {
+                    setIsSignUp(!isSignUp);
+                    setError('');
+                  }}
                   style={styles.toggleLink}
                 >
                   {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}

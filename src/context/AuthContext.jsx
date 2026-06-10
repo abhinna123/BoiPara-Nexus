@@ -54,19 +54,25 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const googleSignIn = async () => {
-    setLoading(true);
+    console.log('GOOGLE_SIGNIN_STARTED');
     try {
       await signInWithPopup(auth, googleProvider);
+      console.log('GOOGLE_SIGNIN_SUCCESS');
     } catch (error) {
-      console.error("Google Sign-In Error:", error);
+      console.log('GOOGLE_SIGNIN_FAILED', {
+        code: error.code,
+        message: error.message
+      });
+      console.error("GOOGLE_LOGIN_FULL_ERROR", {
+        code: error.code,
+        message: error.message,
+        full: error
+      });
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
   const emailSignUp = async (email, password, displayName) => {
-    setLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName });
@@ -74,31 +80,23 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Email Sign-Up Error:", error);
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
   const emailLogin = async (email, password) => {
-    setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
       console.error("Email Login Error:", error);
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
   const logout = async () => {
-    setLoading(true);
     try {
       await signOut(auth);
     } catch (error) {
       console.error("Logout Error:", error);
-    } finally {
-      setLoading(false);
     }
   };
 

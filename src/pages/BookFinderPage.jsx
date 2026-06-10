@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Search, MapPin, ArrowLeft, Compass } from 'lucide-react';
+import { BookOpen, Search, MapPin, ArrowLeft, Compass, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { booksData } from '../data/booksData';
 
@@ -96,13 +96,32 @@ const BookFinderPage = () => {
   const queryParam = searchParams.get('q') || '';
   
   const [searchQuery, setSearchQuery] = useState(queryParam);
+  const [debouncedQuery, setDebouncedQuery] = useState(queryParam);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isLoading, setIsLoading] = useState(false);
 
   // Synchronize local input state with URL search param
   useEffect(() => {
     setSearchQuery(queryParam);
+    setDebouncedQuery(queryParam);
   }, [queryParam]);
+
+  // Handle debouncing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Update URL when debounced query changes
+  useEffect(() => {
+    if (debouncedQuery.trim()) {
+      setSearchParams({ q: debouncedQuery.trim() });
+    } else {
+      setSearchParams({});
+    }
+  }, [debouncedQuery, setSearchParams]);
 
   // Simulated loading when query or category changes
   useEffect(() => {
@@ -111,15 +130,11 @@ const BookFinderPage = () => {
       setIsLoading(false);
     }, 450);
     return () => clearTimeout(timer);
-  }, [queryParam, selectedCategory]);
+  }, [debouncedQuery, selectedCategory]);
 
   const handleSearchSubmit = (e) => {
     if (e) e.preventDefault();
-    if (searchQuery.trim()) {
-      setSearchParams({ q: searchQuery.trim() });
-    } else {
-      setSearchParams({});
-    }
+    setDebouncedQuery(searchQuery);
   };
 
   const handleViewOnMap = (book) => {
@@ -135,22 +150,30 @@ const BookFinderPage = () => {
 
   const clearSearch = () => {
     setSearchQuery('');
+    setDebouncedQuery('');
     setSearchParams({});
     setSelectedCategory('All');
   };
 
   const categories = ['All', 'Engineering', 'Medical', 'UPSC', 'Literature'];
 
-  // Filter books matching search query and category
-  const filteredBooks = booksData.filter(book => {
-    const matchesCategory = selectedCategory === 'All' || book.category.toLowerCase() === selectedCategory.toLowerCase();
-    const matchesSearch = 
-      book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      book.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      book.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      book.stallName.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  // Filter books matching search query and category with useMemo for performance
+  const filteredBooks = useMemo(() => {
+    const query = debouncedQuery.toLowerCase().trim();
+    return booksData.filter(book => {
+      const matchesCategory = selectedCategory === 'All' || book.category.toLowerCase() === selectedCategory.toLowerCase();
+      
+      if (!query) return matchesCategory;
+
+      const matchesSearch = 
+        book.title.toLowerCase().includes(query) ||
+        book.author.toLowerCase().includes(query) ||
+        book.category.toLowerCase().includes(query) ||
+        book.stallName.toLowerCase().includes(query);
+      
+      return matchesCategory && matchesSearch;
+    });
+  }, [debouncedQuery, selectedCategory]);
 
   return (
     <div className="finder-wrapper" style={styles.pageWrapper}>
@@ -180,7 +203,7 @@ const BookFinderPage = () => {
             />
             {searchQuery && (
               <button type="button" onClick={clearSearch} style={styles.clearBtn}>
-                Clear
+                <X size={18} />
               </button>
             )}
             <button type="submit" className="finder-search-btn" style={styles.searchBtn}>
@@ -318,7 +341,7 @@ const BookFinderPage = () => {
                 </svg>
                 <h3 style={styles.emptyTitle}>No Rare Editions Found</h3>
                 <p style={styles.emptyText}>
-                  We couldn't find any books matching "{searchQuery || selectedCategory}" in the directories. Try adjusting your spelling, typing a different author, or resetting the search filters.
+                  We couldn't find any books matching "{debouncedQuery || selectedCategory}" in the directories. Try adjusting your spelling, typing a different author, or resetting the search filters.
                 </p>
                 <button onClick={clearSearch} style={styles.resetBtn}>
                   Reset Search & Filters
@@ -403,6 +426,12 @@ const styles = {
     opacity: 0.6,
     padding: '8px 12px',
     fontWeight: '500',
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   searchBtn: {
     backgroundColor: 'var(--color-primary)',
@@ -412,6 +441,8 @@ const styles = {
     fontSize: '1rem',
     fontWeight: '600',
     transition: 'background-color 0.2s, transform 0.1s',
+    border: 'none',
+    cursor: 'pointer',
   },
   categoryRow: {
     display: 'flex',
@@ -561,6 +592,7 @@ const styles = {
     fontWeight: '600',
     border: '1.5px solid #4A1212',
     boxShadow: '2px 3px 0px rgba(140, 58, 58, 0.3)',
+    cursor: 'pointer',
   }
 };
 
