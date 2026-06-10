@@ -4,16 +4,23 @@ import { BookOpen, MapPin, ArrowLeft, Compass, Heart, Trash2 } from 'lucide-reac
 import { motion, AnimatePresence } from 'framer-motion';
 import { booksData } from '../data/booksData';
 import { useAuth } from '../context/AuthContext';
+import { useRecentlyViewed } from '../hooks/useRecentlyViewed';
 import BookDetailsModal from '../components/BookDetailsModal';
 
 const WishlistPage = () => {
   const navigate = useNavigate();
   const { user, wishlist, toggleWishlist, loading } = useAuth();
+  const { addViewedBook } = useRecentlyViewed();
   const [selectedBook, setSelectedBook] = useState(null);
 
   const savedBooks = useMemo(() => {
     return booksData.filter(book => wishlist.includes(book.id));
   }, [wishlist]);
+
+  const handleBookSelect = (book) => {
+    setSelectedBook(book);
+    addViewedBook(book.id);
+  };
 
   const handleViewOnMap = (book) => {
     const categoryToZone = {
@@ -99,7 +106,7 @@ const WishlistPage = () => {
                     whileHover={{ y: -6, rotate: 1.0, boxShadow: '5px 8px 0px rgba(92, 64, 51, 0.2)' }}
                     className="premium-card book-card wobbly-border"
                     style={{ ...styles.bookCard, cursor: 'pointer' }}
-                    onClick={() => setSelectedBook(book)}
+                    onClick={() => handleBookSelect(book)}
                   >
                     <div style={styles.coverWrapper}>
                       <BookCover title={book.title} author={book.author} color={book.coverColor} />

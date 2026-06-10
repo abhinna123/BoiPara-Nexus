@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Search, MapPin, ArrowLeft, Compass, X, Heart } from 'lucide-react';
+import { BookOpen, Search, MapPin, ArrowLeft, Compass, X, Heart, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { booksData } from '../data/booksData';
 import { useAuth } from '../context/AuthContext';
+import { useRecentlyViewed } from '../hooks/useRecentlyViewed';
 import BookDetailsModal from '../components/BookDetailsModal';
 
 // Fuzzy search utility function
@@ -193,6 +194,74 @@ const SkeletonCard = () => (
   </div>
 );
 
+// Simplified Book Card Component for reuse
+const BookCard = ({ book, wishlist, onWishlistClick, onSelect, onLocate, styles }) => {
+  return (
+    <motion.div
+      variants={{
+        hidden: { opacity: 0, y: 12 },
+        visible: { opacity: 1, y: 0 }
+      }}
+      transition={{ duration: 0.35 }}
+      whileHover={{ y: -6, rotate: 1.0, boxShadow: '5px 8px 0px rgba(92, 64, 51, 0.2)' }}
+      className="premium-card book-card wobbly-border"
+      style={{ ...styles.bookCard, cursor: 'pointer' }}
+      onClick={() => onSelect(book)}
+    >
+      <div style={styles.coverWrapper}>
+        <BookCover title={book.title} author={book.author} color={book.coverColor} />
+        {/* Wishlist Heart Button */}
+        <button 
+          onClick={(e) => onWishlistClick(e, book.id)}
+          style={{
+            ...styles.wishlistBtn,
+            color: wishlist.includes(book.id) ? '#FF4B4B' : 'rgba(92, 64, 51, 0.4)',
+            backgroundColor: wishlist.includes(book.id) ? '#FFF0F0' : '#FFFDF9'
+          }}
+          title={wishlist.includes(book.id) ? "Remove from Wishlist" : "Save to Wishlist"}
+        >
+          <Heart size={20} fill={wishlist.includes(book.id) ? '#FF4B4B' : 'none'} />
+        </button>
+      </div>
+      <div style={styles.cardDetails}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <span style={{
+            ...styles.categoryBadge,
+            color: book.coverColor,
+            backgroundColor: book.coverColor + '12',
+            border: `1px solid ${book.coverColor}25`
+          }}>
+            {book.category}
+          </span>
+          <span style={styles.priceTag}>{book.price}</span>
+        </div>
+        
+        <h3 style={styles.bookTitle}>{book.title}</h3>
+        <p style={styles.bookAuthor}>By {book.author}</p>
+        <p style={styles.bookDesc}>{book.description}</p>
+        
+        <div style={styles.stallInfo}>
+          <MapPin size={16} color="var(--color-primary)" style={{ flexShrink: 0, marginTop: '2px' }} />
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+            <strong style={styles.stallName}>{book.stallName}</strong>
+            <span style={styles.stallLocation}>{book.location}</span>
+          </div>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              onLocate(book);
+            }}
+            style={styles.viewOnMapBtn}
+            title="Locate on Map"
+          >
+            <Compass size={18} />
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
 const BookFinderPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -205,6 +274,12 @@ const BookFinderPage = () => {
   const [sortBy, setSortBy] = useState("relevance");
   const [selectedBook, setSelectedBook] = useState(null);
   const { user, wishlist, toggleWishlist } = useAuth();
+  const { recentlyViewedIds, addViewedBook } = useRecentlyViewed();
+
+  const handleBookSelect = (book) => {
+    setSelectedBook(book);
+    addViewedBook(book.id);
+  };
 
   // Synchronize local input state with URL search param
   useEffect(() => {
@@ -271,6 +346,13 @@ const BookFinderPage = () => {
   };
 
   const categories = ['All', 'Engineering', 'Medical', 'UPSC', 'Literature'];
+
+  // Map recently viewed IDs back to full book objects
+  const recentlyViewedBooks = useMemo(() => {
+    return recentlyViewedIds
+      .map(id => booksData.find(book => book.id === id))
+      .filter(Boolean);
+  }, [recentlyViewedIds, booksData]);
 
   // Filter books matching search query and category with useMemo for performance
   const filteredBooks = useMemo(() => {
@@ -442,6 +524,36 @@ const BookFinderPage = () => {
           })}
         </div>
 
+        {/* Recently Viewed Section */}
+        {!debouncedQuery && (
+          <div style={styles.recentlyViewedWrapper}>
+            <div style={styles.sectionHeader}>
+              <Clock size={22} color="var(--color-primary)" />
+              <h2 style={styles.sectionTitle}>Recently Viewed Books</h2>
+            </div>
+            {recentlyViewedBooks.length > 0 ? (
+              <div className="recently-viewed-scroll" style={styles.horizontalScroll}>
+                {recentlyViewedBooks.map(book => (
+                  <div key={book.id} style={{ flex: '0 0 280px', margin: '4px' }}>
+                    <BookCard 
+                      book={book}
+                      wishlist={wishlist}
+                      onWishlistClick={handleWishlistClick}
+                      onSelect={handleBookSelect}
+                      onLocate={handleViewOnMap}
+                      styles={styles}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={styles.emptyRecentState}>
+                <p>No recently viewed books yet.</p>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Loading and Results Grid */}
         <div style={{ position: 'relative', minHeight: '350px', width: '100%' }}>
           <AnimatePresence mode="wait">
@@ -472,69 +584,15 @@ const BookFinderPage = () => {
                 style={styles.gridContainer}
               >
                 {filteredBooks.map(book => (
-                  <motion.div
+                  <BookCard 
                     key={book.id}
-                    variants={{
-                      hidden: { opacity: 0, y: 12 },
-                      visible: { opacity: 1, y: 0 }
-                    }}
-                    transition={{ duration: 0.35 }}
-                    whileHover={{ y: -6, rotate: 1.0, boxShadow: '5px 8px 0px rgba(92, 64, 51, 0.2)' }}
-                    className="premium-card book-card wobbly-border"
-                    style={{ ...styles.bookCard, cursor: 'pointer' }}
-                    onClick={() => setSelectedBook(book)}
-                  >
-                    <div style={styles.coverWrapper}>
-                      <BookCover title={book.title} author={book.author} color={book.coverColor} />
-                      {/* Wishlist Heart Button */}
-                      <button 
-                        onClick={(e) => handleWishlistClick(e, book.id)}
-                        style={{
-                          ...styles.wishlistBtn,
-                          color: wishlist.includes(book.id) ? '#FF4B4B' : 'rgba(92, 64, 51, 0.4)',
-                          backgroundColor: wishlist.includes(book.id) ? '#FFF0F0' : '#FFFDF9'
-                        }}
-                        title={wishlist.includes(book.id) ? "Remove from Wishlist" : "Save to Wishlist"}
-                      >
-                        <Heart size={20} fill={wishlist.includes(book.id) ? '#FF4B4B' : 'none'} />
-                      </button>
-                    </div>
-                    <div style={styles.cardDetails}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                        <span style={{
-                          ...styles.categoryBadge,
-                          color: book.coverColor,
-                          backgroundColor: book.coverColor + '12',
-                          border: `1px solid ${book.coverColor}25`
-                        }}>
-                          {book.category}
-                        </span>
-                        <span style={styles.priceTag}>{book.price}</span>
-                      </div>
-                      
-                      <h3 style={styles.bookTitle}>{book.title}</h3>
-                      <p style={styles.bookAuthor}>By {book.author}</p>
-                      <p style={styles.bookDesc}>{book.description}</p>
-                      
-                      <div style={styles.stallInfo}>
-                        <MapPin size={16} color="var(--color-primary)" style={{ flexShrink: 0, marginTop: '2px' }} />
-                        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                          <strong style={styles.stallName}>{book.stallName}</strong>
-                          <span style={styles.stallLocation}>{book.location}</span>
-                        </div>
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleViewOnMap(book);
-                          }}
-                          style={styles.viewOnMapBtn}
-                          title="Locate on Map"
-                        >
-                          <Compass size={18} />
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
+                    book={book}
+                    wishlist={wishlist}
+                    onWishlistClick={handleWishlistClick}
+                    onSelect={handleBookSelect}
+                    onLocate={handleViewOnMap}
+                    styles={styles}
+                  />
                 ))}
               </motion.div>
             ) : (
@@ -685,6 +743,40 @@ const styles = {
     fontSize: '0.95rem',
     cursor: 'pointer',
     transition: 'transform 0.2s, background-color 0.2s, box-shadow 0.2s',
+  },
+  recentlyViewedWrapper: {
+    width: '100%',
+    marginBottom: '48px',
+    padding: '0 10px',
+  },
+  sectionHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    marginBottom: '24px',
+    paddingLeft: '10px',
+  },
+  sectionTitle: {
+    fontFamily: 'var(--font-heading)',
+    fontSize: '1.75rem',
+    color: 'var(--color-primary)',
+    margin: 0,
+  },
+  horizontalScroll: {
+    display: 'flex',
+    gap: '24px',
+    overflowX: 'auto',
+    padding: '10px 10px 24px 10px',
+    scrollbarWidth: 'none', // Hide scrollbar for Firefox
+    msOverflowStyle: 'none', // Hide scrollbar for IE/Edge
+    WebkitOverflowScrolling: 'touch',
+  },
+  emptyRecentState: {
+    padding: '24px 10px',
+    color: 'var(--color-text-ink)',
+    opacity: 0.5,
+    fontStyle: 'italic',
+    fontSize: '0.95rem',
   },
   gridContainer: {
     display: 'grid',

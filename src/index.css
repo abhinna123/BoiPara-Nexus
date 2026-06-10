@@ -251,6 +251,11 @@ html, body, #root {
   transform-origin: center;
 }
 
+/* Recently Viewed horizontal scroll cleanup */
+.recently-viewed-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 /* Old Paper Texture filter values (for SVG filter) */
 .paper-container {
   position: relative;
