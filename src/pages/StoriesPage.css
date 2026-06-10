@@ -237,14 +237,38 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1rem;
   font-weight: 600;
-  font-size: 0.95rem;
-  transition: gap 0.3s;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 4px 12px rgba(140, 58, 58, 0.15);
+  margin-top: 16px;
+  overflow: hidden;
+  position: relative;
+}
+
+.read-story-btn .ArrowRight {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  display: inline-block;
 }
 
 .read-story-btn:hover {
-  gap: 12px;
+  background: #732e2e;
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 28px rgba(140, 58, 58, 0.25);
+}
+
+.read-story-btn:hover .ArrowRight {
+  transform: translateX(4px);
+}
+
+.read-story-btn:active {
+  transform: translateY(0) scale(0.98);
 }
 
 /* Modal Styles */
