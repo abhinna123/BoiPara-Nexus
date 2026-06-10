@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, MapPin, Compass, Heart } from 'lucide-react';
+import { X, MapPin, Compass, Heart, MessageCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import BookCover from './BookCover';
 
@@ -39,7 +39,9 @@ const BookDetailsModal = ({ isOpen, onClose, book, onLocate }) => {
   const displayPrice = book?.price || 'Price Not Available';
   const displayDescription = book?.description || 'No description available for this book.';
   const displayStallName = book?.stallName || 'Unknown Stall';
+  const displayStallNumber = book?.stallNumber || 'Not Specified';
   const displayLocation = book?.location || 'Location Not Specified';
+  const displayPhoneNumber = book?.phoneNumber || '';
   const displayCoverColor = book?.coverColor || '#8C3A3A';
 
   const isSaved = book ? wishlist.includes(book.id) : false;
@@ -51,6 +53,16 @@ const BookDetailsModal = ({ isOpen, onClose, book, onLocate }) => {
       return;
     }
     toggleWishlist(book.id);
+  };
+
+  const handleWhatsApp = () => {
+    if (!displayPhoneNumber) return;
+    
+    const message = `Hello, I am interested in the book "${displayTitle}" listed on BoiPara Nexus. Is it still available?`;
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${displayPhoneNumber}?text=${encodedMessage}`;
+    
+    window.open(whatsappUrl, '_blank');
   };
 
   return (
@@ -119,9 +131,27 @@ const BookDetailsModal = ({ isOpen, onClose, book, onLocate }) => {
                   <MapPin size={18} color="var(--color-primary)" style={{ flexShrink: 0, marginTop: '2px' }} />
                   <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                     <strong style={styles.stallName}>{displayStallName}</strong>
-                    <span style={styles.stallLocation}>{displayLocation}</span>
+                    <span style={styles.stallLocation}>{displayLocation} • {displayStallNumber}</span>
                   </div>
                 </div>
+
+                <div style={styles.divider} />
+
+                <h4 style={styles.sectionTitle}>Contact Seller</h4>
+                {displayPhoneNumber ? (
+                  <button 
+                    onClick={handleWhatsApp}
+                    style={styles.whatsappBtn}
+                    className="hover-lift"
+                  >
+                    <MessageCircle size={20} />
+                    <span>WhatsApp Seller</span>
+                  </button>
+                ) : (
+                  <p style={styles.fallbackText}>Seller contact not available.</p>
+                )}
+
+                <div style={styles.divider} />
 
                 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                   {onLocate && book && (
@@ -350,6 +380,31 @@ const styles = {
     transition: 'all 0.2s',
     alignSelf: 'flex-start',
     width: 'auto',
+  },
+  whatsappBtn: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '10px',
+    backgroundColor: '#25D366', // WhatsApp Green
+    color: '#FFFFFF',
+    padding: '12px 24px',
+    borderRadius: 'var(--radius-pill)',
+    fontSize: '1rem',
+    fontWeight: '600',
+    border: 'none',
+    boxShadow: '3px 4px 0px rgba(18, 140, 62, 0.3)',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    alignSelf: 'flex-start',
+    width: 'auto',
+  },
+  fallbackText: {
+    fontSize: '0.9rem',
+    color: 'var(--color-text-ink)',
+    opacity: 0.5,
+    fontStyle: 'italic',
+    margin: '4px 0',
   }
 };
 

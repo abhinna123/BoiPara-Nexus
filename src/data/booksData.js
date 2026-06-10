@@ -6,7 +6,9 @@ export const booksData = [
     category: 'Engineering',
     price: '₹899',
     stallName: 'Techno Books',
-    location: 'College Street Crossing, Stall 4',
+    stallNumber: 'Stall 4',
+    location: 'College Street Crossing',
+    phoneNumber: '919876543210',
     coverColor: '#3A7CA5',
     description: 'The standard textbook on algorithm design and analysis used globally by CS students.'
   },
@@ -17,7 +19,9 @@ export const booksData = [
     category: 'Literature',
     price: '₹250',
     stallName: "Dey's Publishing",
+    stallNumber: 'Shop 12',
     location: 'Main Road opposite Presidency University',
+    phoneNumber: '919123456789',
     coverColor: '#D4A373',
     description: 'A classic of Bengali literature tracing the lives of Apu and Durga in rural Bengal.'
   },
@@ -28,7 +32,9 @@ export const booksData = [
     category: 'Medical',
     price: '₹1,450',
     stallName: 'Medical Book Company',
+    stallNumber: 'Gate Stall 2',
     location: 'Near Medical College Gate',
+    phoneNumber: '919888777666',
     coverColor: '#4B7F52',
     description: 'A classic medical textbook on human anatomy, fully updated for modern students.'
   },
@@ -39,7 +45,9 @@ export const booksData = [
     category: 'UPSC',
     price: '₹620',
     stallName: 'Success Point',
-    location: 'Surya Sen Street, Lane 2',
+    stallNumber: 'Lane 2, Stall 5',
+    location: 'Surya Sen Street',
+    phoneNumber: '919000111222',
     coverColor: '#B0413E',
     description: 'The ultimate guide on Indian governance and constitution, highly recommended for civil services.'
   },
@@ -50,7 +58,9 @@ export const booksData = [
     category: 'Literature',
     price: '₹180',
     stallName: 'Ananda Publishers',
-    location: 'Stall 15, Harrison Road corner',
+    stallNumber: 'Stall 15',
+    location: 'Harrison Road corner',
+    phoneNumber: '919333444555',
     coverColor: '#D4A373',
     description: 'A psychological novel explore complex human relationships, adultery, and distrust.'
   },
@@ -61,7 +71,9 @@ export const booksData = [
     category: 'Engineering',
     price: '₹750',
     stallName: 'Bani Library',
+    stallNumber: 'Main Stall',
     location: 'Bankim Chatterjee Street',
+    phoneNumber: '919444555666',
     coverColor: '#3A7CA5',
     description: 'An essential textbook for university-level calculus-based physics courses.'
   },
@@ -72,7 +84,9 @@ export const booksData = [
     category: 'Literature',
     price: '₹150',
     stallName: 'Mitra & Ghosh',
-    location: 'Near Coffee House, Lane 1',
+    stallNumber: 'Lane 1, Shop A',
+    location: 'Near Coffee House',
+    phoneNumber: '919555666777',
     coverColor: '#D4A373',
     description: 'A collection of beautiful poems that won Tagore the Nobel Prize in Literature.'
   },
@@ -83,7 +97,9 @@ export const booksData = [
     category: 'Engineering',
     price: '₹399',
     stallName: 'Standard Literature',
-    location: 'Surya Sen Street, Stall 12',
+    stallNumber: 'Stall 12',
+    location: 'Surya Sen Street',
+    phoneNumber: '919666777888',
     coverColor: '#3A7CA5',
     description: 'A landmark publication on cosmology, explaining black holes and quantum mechanics.'
   },
@@ -94,7 +110,9 @@ export const booksData = [
     category: 'Medical',
     price: '₹2,800',
     stallName: 'Dutta Brothers',
+    stallNumber: 'Front Gate Shop',
     location: 'Opposite Calcutta Medical College',
+    phoneNumber: '919777888999',
     coverColor: '#4B7F52',
     description: 'The premier reference work on clinical medicine, pathology, and therapeutics.'
   },
@@ -105,7 +123,9 @@ export const booksData = [
     category: 'UPSC',
     price: '₹290',
     stallName: 'Competition Care',
-    location: 'Surya Sen Street, Stall 8',
+    stallNumber: 'Stall 8',
+    location: 'Surya Sen Street',
+    phoneNumber: '919888999000',
     coverColor: '#B0413E',
     description: 'An elementary study of physical geography, crucial for basic civil services prep.'
   },
@@ -116,7 +136,9 @@ export const booksData = [
     category: 'Literature',
     price: '₹600',
     stallName: 'Ananda Publishers',
-    location: 'Stall 15, Harrison Road corner',
+    stallNumber: 'Stall 15',
+    location: 'Harrison Road corner',
+    phoneNumber: '919333444555',
     coverColor: '#D4A373',
     description: 'The complete detective chronicles of Byomkesh Bakshi, Kolkata’s truth-seeker.'
   },
@@ -127,7 +149,9 @@ export const booksData = [
     category: 'Engineering',
     price: '₹420',
     stallName: 'Bani Library',
+    stallNumber: 'Main Stall',
     location: 'Bankim Chatterjee Street',
+    phoneNumber: '919444555666',
     coverColor: '#3A7CA5',
     description: 'A foundational physics manual, prized by IIT-JEE aspirants all over India.'
   },
@@ -138,7 +162,9 @@ export const booksData = [
     category: 'UPSC',
     price: '₹580',
     stallName: 'Pathfinder Book Store',
-    location: 'Stall 20, Presidency Gate area',
+    stallNumber: 'Stall 20',
+    location: 'Presidency Gate area',
+    phoneNumber: '919111222333',
     coverColor: '#B0413E',
     description: 'A detailed analysis of the Indian economic system, policies, and developments.'
   },
@@ -149,7 +175,9 @@ export const booksData = [
     category: 'Medical',
     price: '₹1,950',
     stallName: 'Health Science Library',
+    stallNumber: 'Block C',
     location: 'Medical College Hostel Lane',
+    phoneNumber: '919222333444',
     coverColor: '#4B7F52',
     description: 'Highly detailed guide to medical physiology, cellular biology, and clinical practice.'
   },
@@ -160,7 +188,9 @@ export const booksData = [
     category: 'Literature',
     price: '₹550',
     stallName: 'Ananda Publishers',
-    location: 'Stall 15, Harrison Road corner',
+    stallNumber: 'Stall 15',
+    location: 'Harrison Road corner',
+    phoneNumber: '919333444555',
     coverColor: '#D4A373',
     description: 'The early detective adventures of Prodosh Chandra Mitter, alias Feluda.'
   },
@@ -171,7 +201,9 @@ export const booksData = [
     category: 'UPSC',
     price: '₹490',
     stallName: 'Success Point',
-    location: 'Surya Sen Street, Lane 2',
+    stallNumber: 'Lane 2, Stall 5',
+    location: 'Surya Sen Street',
+    phoneNumber: '919000111222',
     coverColor: '#B0413E',
     description: 'Comprehensive aptitude and verbal reasoning guides for competitive exams.'
   },
@@ -182,7 +214,9 @@ export const booksData = [
     category: 'Engineering',
     price: '₹550',
     stallName: 'Standard Literature',
-    location: 'Surya Sen Street, Stall 12',
+    stallNumber: 'Stall 12',
+    location: 'Surya Sen Street',
+    phoneNumber: '919666777888',
     coverColor: '#3A7CA5',
     description: 'Simple and practical guide to code design, complexity analysis, and algorithms.'
   },
@@ -193,7 +227,9 @@ export const booksData = [
     category: 'Medical',
     price: '₹2,200',
     stallName: 'Medical Book Company',
+    stallNumber: 'Gate Stall 2',
     location: 'Near Medical College Gate',
+    phoneNumber: '919888777666',
     coverColor: '#4B7F52',
     description: 'Comprehensive guide to pathology, disease mechanisms, and clinical correlations.'
   },
@@ -204,11 +240,12 @@ export const booksData = [
     category: "Engineering",
     price: "₹550",
     stallName: "Techno Books",
-    location: "College Street Block A",
+    stallNumber: "Block A, Shop 4",
+    location: "College Street",
+    phoneNumber: "", // Testing fallback
     coverColor: "#A37CA5",
     description: "Complete Java and DSA preparation guide."
   },
-
   {
     id: 20,
     title: "Head First Java",
@@ -216,7 +253,9 @@ export const booksData = [
     category: "Engineering",
     price: "₹620",
     stallName: "Bani Library",
-    location: "College Street Block B",
+    stallNumber: "Block B, Shop 1",
+    location: "College Street",
+    phoneNumber: "919444555666",
     coverColor: "#4B7F52",
     description: "Beginner friendly Java learning book."
   }
