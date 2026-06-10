@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Clock, X, Tag } from 'lucide-react';
+import { BookOpen, Clock, X, Tag, Share2, CheckCircle } from 'lucide-react';
 import { heritageStories } from '../data/storiesData';
 import CategoryFilter from '../components/CategoryFilter';
 import StoryCard from '../components/StoryCard';
@@ -9,6 +9,68 @@ import './StoriesPage.css';
 const StoriesPage = () => {
   const [selectedStory, setSelectedStory] = useState(null);
   const [activeCategory, setActiveCategory] = useState("All");
+  const [toast, setToast] = useState({ show: false, message: "" });
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const modalScrollRef = useRef(null);
+
+  // Handle Share Logic
+  const handleShare = useCallback(async (story) => {
+    const shareUrl = `${window.location.origin}${window.location.pathname}?id=${story.id}`;
+    const shareData = {
+      title: `BoiPara Nexus: ${story.title}`,
+      text: story.description,
+      url: shareUrl,
+    };
+
+    try {
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+        showToast("Link copied to clipboard");
+      }
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        console.error('Error sharing:', error);
+        // Fallback for failed share attempt
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          showToast("Link copied to clipboard");
+        } catch (copyError) {
+          console.error('Copy failed:', copyError);
+        }
+      }
+    }
+  }, []);
+
+  const showToast = (message) => {
+    setToast({ show: true, message });
+    setTimeout(() => setToast({ show: false, message: "" }), 3000);
+  };
+
+  // Deep linking: Check URL for story ID on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const storyId = params.get('id');
+    
+    if (storyId) {
+      const story = heritageStories.find(s => s.id.toString() === storyId);
+      if (story) {
+        setSelectedStory(story);
+      }
+    }
+  }, []);
+
+  // Update URL when story is selected/deselected
+  useEffect(() => {
+    const url = new URL(window.location);
+    if (selectedStory) {
+      url.searchParams.set('id', selectedStory.id);
+    } else {
+      url.searchParams.delete('id');
+    }
+    window.history.replaceState({}, '', url);
+  }, [selectedStory]);
 
   // Synchronously derive filtered stories to prevent layout flickers/shifts
   const filteredStories = useMemo(() => {
@@ -21,6 +83,37 @@ const StoriesPage = () => {
   const handleImageError = (e) => {
     e.target.src = '/bookshelf.png';
   };
+
+  // Handle Scroll Progress for Modal
+  useEffect(() => {
+    const handleScroll = () => {
+      if (modalScrollRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = modalScrollRef.current;
+        const totalHeight = scrollHeight - clientHeight;
+        if (totalHeight === 0) {
+          setScrollProgress(0);
+          return;
+        }
+        const progress = (scrollTop / totalHeight) * 100;
+        setScrollProgress(Math.min(progress, 100));
+      }
+    };
+
+    const currentRef = modalScrollRef.current;
+    if (selectedStory && currentRef) {
+      currentRef.addEventListener('scroll', handleScroll);
+      // Initial calculation
+      handleScroll();
+    } else {
+      setScrollProgress(0);
+    }
+
+    return () => {
+      if (currentRef) {
+        currentRef.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, [selectedStory]);
 
   // Disable scroll when modal is open and handle Escape key
   useEffect(() => {
@@ -79,6 +172,7 @@ const StoriesPage = () => {
                 key={story.id}
                 story={story}
                 onReadClick={setSelectedStory}
+                onShareClick={handleShare}
               />
             ))}
           </AnimatePresence>
@@ -116,15 +210,40 @@ const StoriesPage = () => {
               className="story-modal premium-card"
               onClick={(e) => e.stopPropagation()}
             >
-              <button 
-                className="modal-close-btn"
-                onClick={() => setSelectedStory(null)}
-                aria-label="Close modal"
-              >
-                <X size={24} />
-              </button>
+              {/* Reading Progress Bar */}
+              <div className="reading-progress-container">
+                <motion.div 
+                  className="reading-progress-bar"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${scrollProgress}%` }}
+                  transition={{ type: 'spring', damping: 30, stiffness: 200, mass: 0.5 }}
+                />
+                <div className="progress-percentage">
+                  {Math.round(scrollProgress)}%
+                </div>
+              </div>
+
+              <div className="modal-header-actions">
+                <button 
+                  className="modal-action-btn share"
+                  onClick={() => handleShare(selectedStory)}
+                  aria-label="Share story"
+                >
+                  <Share2 size={20} />
+                </button>
+                <button 
+                  className="modal-action-btn close"
+                  onClick={() => setSelectedStory(null)}
+                  aria-label="Close modal"
+                >
+                  <X size={24} />
+                </button>
+              </div>
               
-              <div className="modal-scroll-content">
+              <div 
+                className="modal-scroll-content"
+                ref={modalScrollRef}
+              >
                 <div className="modal-hero-image-wrapper">
                   <img 
                     src={selectedStory.image} 
@@ -152,6 +271,21 @@ const StoriesPage = () => {
                 </div>
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast.show && (
+          <motion.div 
+            className="toast-notification"
+            initial={{ opacity: 0, y: 50, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: 20, x: '-50%' }}
+          >
+            <CheckCircle size={18} />
+            {toast.message}
           </motion.div>
         )}
       </AnimatePresence>

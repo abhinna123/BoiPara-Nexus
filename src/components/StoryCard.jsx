@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Clock, Tag } from 'lucide-react';
+import { ArrowRight, Clock, Tag, Share2 } from 'lucide-react';
 
-const StoryCard = ({ story, onReadClick }) => {
+const StoryCard = ({ story, onReadClick, onShareClick }) => {
   const handleImageError = (e) => {
     e.target.src = '/bookshelf.png';
   };
@@ -35,6 +35,16 @@ const StoryCard = ({ story, onReadClick }) => {
             <Tag size={12} /> {story.category}
           </span>
         </div>
+        <button 
+          className="card-share-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            onShareClick(story);
+          }}
+          aria-label="Share story"
+        >
+          <Share2 size={18} />
+        </button>
       </div>
       
       <div className="story-card-content">
